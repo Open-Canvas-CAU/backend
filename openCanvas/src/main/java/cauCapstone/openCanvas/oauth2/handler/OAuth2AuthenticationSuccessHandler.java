@@ -10,8 +10,11 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import cauCapstone.openCanvas.oauth2.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
 import cauCapstone.openCanvas.oauth2.oauth2.service.OAuth2UserPrincipal;
 import cauCapstone.openCanvas.oauth2.oauth2.user.OAuth2Provider;
+import cauCapstone.openCanvas.oauth2.oauth2.user.OAuth2UserUnlinkManager;
+import cauCapstone.openCanvas.oauth2.util.CookieUtils;
 
 import java.io.IOException;
 import java.util.Optional;

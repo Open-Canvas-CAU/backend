@@ -12,7 +12,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import cauCapstone.openCanvas.oauth2.handler.OAuth2AuthenticationFailureHandler;
 import cauCapstone.openCanvas.oauth2.handler.OAuth2AuthenticationSuccessHandler;
+import cauCapstone.openCanvas.oauth2.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
 import cauCapstone.openCanvas.oauth2.oauth2.service.CustomOAuth2UserService;
 
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
@@ -50,7 +52,7 @@ public class SecurityConfig {
             .oauth2Login(configure ->
             	configure
             		.authorizationEndpoint(config -> config.authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository))
-                    .userInfoEndpoint(config -> config.userService(CustomOAuth2UserService))
+                    .userInfoEndpoint(config -> config.userService(customOAuth2UserService))
                     .successHandler(oAuth2AuthenticationSuccessHandler)
                     .failureHandler(oAuth2AuthenticationFailureHandler)
             		);
