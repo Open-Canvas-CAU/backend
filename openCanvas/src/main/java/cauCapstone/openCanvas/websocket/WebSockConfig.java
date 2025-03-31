@@ -1,24 +1,28 @@
 package cauCapstone.openCanvas.websocket;
 
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.socket.WebSocketHandler;
-import org.springframework.web.socket.config.annotation.EnableWebSocket;
-import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
-import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
+import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
+import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
+import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
-import lombok.RequiredArgsConstructor;
-
-// handler를 이용해서 websocket을 활성화 하기위한 config 파일
-// 클라이언트는 ws://localhost:8080/ws/chat으로 접속하면 웹소켓 통신을 할 수 있다.
-@RequiredArgsConstructor
+// stomp 기반의 웹소켓 설정을 한다.
 @Configuration
-@EnableWebSocket	// 웹소켓을 활성화 한다.
-public class WebSockConfig implements WebSocketConfigurer {
-    private final WebSocketHandler webSocketHandler;
+@EnableWebSocketMessageBroker	// stomp를 사용하기 위한 어노테이션
+public class WebSockConfig implements WebSocketMessageBrokerConfigurer {
 
+	// pub/sub 메시징을 구현하기 위해 메시지를 구독하는 요청의 prefix는 /sub으로 메시지를 발행하는 요청의 prefix는 /pub으로 시작하게 한다.
     @Override
-    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-    	// websocket 접속 엔드포인트는 "/ws/chat"이고, cors: setAllowedOrigins("*")을 통해서 도메인이 다른 서버에서도 접속 가능하다.
-        registry.addHandler(webSocketHandler, "/ws/chat").setAllowedOrigins("*");
+    public void configureMessageBroker(MessageBrokerRegistry config) {
+        config.enableSimpleBroker("/sub");
+        config.setApplicationDestinationPrefixes("/pub");
+    }
+
+    // 로컬일 때 stomp-websocket 엔드포인트는 ws://localhost:8080/ws-stomp가 된다.
+    // 다른 서버에서 오는 요청을 허용하기 위해 setAllowdOrigins("*")를 한다.
+    @Override
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
+        registry.addEndpoint("/ws-stomp").setAllowedOrigins("*")
+                .withSockJS();	// 웹소켓 미지원 환경에서도 연결 가능하게 한다.
     }
 }
