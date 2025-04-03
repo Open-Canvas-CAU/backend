@@ -1,4 +1,4 @@
-package cauCapstone.openCanvas.oauth2.handler;
+	package cauCapstone.openCanvas.oauth2.handler;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
