@@ -24,7 +24,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest) throws OAuth2AuthenticationException {
 
     	// 사용자의 정보를 oAauth2UserRequest에서 받아서 oAuth2User에 담는다.
-    	// OAuth2User는 인터페이스고 super.loadUser 메소드는 구현객체를 리턴한다.ㄴ
+    	// OAuth2User는 인터페이스고 super.loadUser 메소드는 구현객체를 리턴한다.
         OAuth2User oAuth2User = super.loadUser(oAuth2UserRequest);
 
         try {
