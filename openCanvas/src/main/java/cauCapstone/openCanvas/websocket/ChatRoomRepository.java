@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Repository;
 
 import jakarta.annotation.PostConstruct;
@@ -13,10 +15,11 @@ import lombok.RequiredArgsConstructor;
 @Repository
 public class ChatRoomRepository {
  
-	// redisMessageListener, topic 단일화를 진행했기 때문에, Repository에서 만들 필요가 없다.
+    private final RedisMessageListenerContainer redisMessageListener; // 채팅방(topic)에 발행되는 메시지를 수신하는 리스너
+    private final RedisSubscriber redisSubscriber; // 구독 처리 서비스
     private static final String CHAT_ROOMS = "CHAT_ROOM";
     private final RedisTemplate<String, Object> redisTemplate; // Redis 데이터 입출력을 위한 template
-    private HashOperations<String, String, ChatRoom> opsHashChatRoom; // Redis와 Hash 타입을 다루기위한 객체ㄴ
+    private HashOperations<String, String, ChatRoom> opsHashChatRoom; // Redis와 Hash 타입을 다루기위한 객체
 
     // 빈 생성 후 HashOperations 객체와 topic Map 초기화를 한다.
     @PostConstruct
@@ -38,6 +41,12 @@ public class ChatRoomRepository {
     public ChatRoom createChatRoom(String name) {
         ChatRoom chatRoom = ChatRoom.create(name);
         opsHashChatRoom.put(CHAT_ROOMS, chatRoom.getRoomId(), chatRoom);
+        
+        // roomId별 토픽을 Redis에 등록하고, 리스너를 통해 메시지를 수신하도록 설정한다.
+        // 리스너는 채팅방마다 1개가 필요하다고 한다(사용자별 1개가 아님).
+        ChannelTopic topic = new ChannelTopic(chatRoom.getRoomId());
+        redisMessageListener.addMessageListener(redisSubscriber, topic);
+        
         return chatRoom;
     }
 }

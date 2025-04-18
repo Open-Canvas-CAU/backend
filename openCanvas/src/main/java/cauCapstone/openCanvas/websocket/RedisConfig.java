@@ -16,24 +16,14 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 @Configuration
 public class RedisConfig {
 	
-	// "chatroom"이라는 단일 채널(토픽)을 사용한다.
-	// 채팅방마다 토픽을 만드는게("chatroom" + roomId) 나을 수도 있다.
-	@Bean
-	public ChannelTopic channelTopic() {
-	    return new ChannelTopic("chatroom");
-	}
-
-
 	// pub/sub 기능을 사용할 때, 구독한 채널의 메세지를 수신하기 위해 RedisMessageListener를 사용한다.
 	// RedisConnectionFactory를 통해 Redis와 연결한다.
-	// linstenerAdapter와 channelTopic을 단일화한다.
     @Bean
     public RedisMessageListenerContainer redisMessageListener(RedisConnectionFactory connectionFactory,
                                                               MessageListenerAdapter listenerAdapter,
                                                               ChannelTopic channelTopic) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
-        container.addMessageListener(listenerAdapter, channelTopic);
         return container;
     }
     

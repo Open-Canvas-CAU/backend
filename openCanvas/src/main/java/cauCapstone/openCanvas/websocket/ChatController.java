@@ -12,8 +12,7 @@ import lombok.RequiredArgsConstructor;
 @Controller
 public class ChatController {
 
-    private final RedisTemplate<String, Object> redisTemplate;
-    private final ChannelTopic channelTopic;
+	private final RedisPublisher redisPublisher;
 
     // @MessageMapping을 통해서 웹소켓으로 들어오는 메시지 발행을 처리한다.
     // 클라이언트가 메시지 발행 요청을 할 때에는 prefix를 붙여서 /pub/chat/message로 해야한다.
@@ -24,7 +23,10 @@ public class ChatController {
             message.setMessage(message.getSender() + "님이 입장하셨습니다.");
         }
         
+        // 발행요청한 메시지를 /sub/chat/room/{roomId}로 보낸다.
+        // 클라이언트는 /sub/chat/room/{roomId}를 구독하고 있으면 메시지를 전달받는다.
+        // /sub/chat/room/{roomId}는 토픽이다.
         //redis로 발행한다.
-        redisTemplate.convertAndSend(channelTopic.getTopic(), message);
+        redisPublisher.publish(new ChannelTopic(message.getRoomId()), message);
     }
 }

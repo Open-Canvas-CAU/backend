@@ -8,8 +8,10 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Component;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.io.Encoders;
@@ -29,6 +31,7 @@ public class JwtTokenizer {
 	private String secretKey;
 	
 	// Secret key를 byte화 한다.
+	// base64EncodedSecretKey가 application.yml에 저장된 secretKey를 변환한것이라는걸 기억하기.
 	public String encodeBase64SecretKey() {
 		return Encoders.BASE64.encode(secretKey.getBytes(StandardCharsets.UTF_8));
 	}
@@ -80,14 +83,25 @@ public class JwtTokenizer {
 	}
 	
 	// 서명(signature)을 통해 검증한다.
-	// 서명 검증을 통과하면 claims를 얻을 수 있다.
+	// 서명 검증을 통과하면 claims를 얻을 수 있다(어디다가 담을지는 추후에 지정해줘야함)
+	// 검증은 예외를 던지는 것으로 성공과 실패를 나눈다.
 	public void verifySignature(String jws, String base64EncodedSecretKey) {
-		Key key = getKeyFromBase64EncodedKey(base64EncodedSecretKey);
 		
-		Jwts.parserBuilder()
-				.setSigningKey(key)
-				.build()
-				.parseClaimsJws(jws);
+		try {
+			Key key = getKeyFromBase64EncodedKey(base64EncodedSecretKey);
+			// TODO: 이 Claims 정보를 담아야할 수도 있다.
+			Claims claims = Jwts.parserBuilder()
+					.setSigningKey(key)
+					.build()
+					.parseClaimsJws(jws)
+					.getBody();
+			
+			// 이런식으로 claims를 꺼낼 수 있다.
+			String subject = claims.getSubject();
+		} catch (JwtException e) {
+	        throw new RuntimeException("유효하지 않은 JWT 토큰입니다.");
+	    }
+		
 	}
 }
 
