@@ -83,9 +83,10 @@ public class JwtTokenizer {
 	}
 	
 	// 서명(signature)을 통해 검증한다.
-	// 서명 검증을 통과하면 claims를 얻을 수 있다(어디다가 담을지는 추후에 지정해줘야함)
+	// TODO: 서명 검증을 통과하면 claims를 얻을 수 있다(어디다가 담을지는 추후에 지정해줘야함)
 	// 검증은 예외를 던지는 것으로 성공과 실패를 나눈다.
-	public void verifySignature(String jws, String base64EncodedSecretKey) {
+	// claim은 유저정보, 발행일, 만료기간(위에 참조)가 들어가고 subject가 유저정보(id를 넣을수도 있고 나중에 정하기)
+	public Claims verifySignature(String jws, String base64EncodedSecretKey) {
 		
 		try {
 			Key key = getKeyFromBase64EncodedKey(base64EncodedSecretKey);
@@ -98,6 +99,9 @@ public class JwtTokenizer {
 			
 			// 이런식으로 claims를 꺼낼 수 있다.
 			String subject = claims.getSubject();
+			
+			return claims;
+			
 		} catch (JwtException e) {
 	        throw new RuntimeException("유효하지 않은 JWT 토큰입니다.");
 	    }

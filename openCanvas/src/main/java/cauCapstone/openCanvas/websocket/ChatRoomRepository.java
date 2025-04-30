@@ -37,8 +37,9 @@ public class ChatRoomRepository {
         return opsHashChatRoom.get(CHAT_ROOMS, id);
     }
 
+    // TODO: 여기에 채팅방을 만드는 사람의 토큰을 가져와야함.
     // 채팅방 객체는 Redis Hash에 "CHAT_ROOMS"라는 키로 저장된다.
-    public ChatRoom createChatRoom(String name) {
+    public ChatRoom createChatRoom(String name, String userId) {
         ChatRoom chatRoom = ChatRoom.create(name);
         opsHashChatRoom.put(CHAT_ROOMS, chatRoom.getRoomId(), chatRoom);
         
@@ -46,6 +47,10 @@ public class ChatRoomRepository {
         // 리스너는 채팅방마다 1개가 필요하다고 한다(사용자별 1개가 아님).
         ChannelTopic topic = new ChannelTopic(chatRoom.getRoomId());
         redisMessageListener.addMessageListener(redisSubscriber, topic);
+        
+        // 문서 편집 락 설정
+        // 문서방이 만들어지고나서 문서 편집 락을 거는 것이다.
+        String lockKey = "lock:doucument:" + chatRoom.getRoomId();
         
         return chatRoom;
     }

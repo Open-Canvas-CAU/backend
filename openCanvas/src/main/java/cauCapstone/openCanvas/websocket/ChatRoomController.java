@@ -33,10 +33,11 @@ public class ChatRoomController {
      return chatRoomRepository.findAllRoom();
  }
  // 채팅방 생성
+ // TODO: 유저 아이디도 같이 받게한 것을 알고 있어야한다. 
  @PostMapping("/room")
  @ResponseBody
- public ChatRoom createRoom(@RequestParam String name) {
-     return chatRoomRepository.createChatRoom(name);
+ public ChatRoom createRoom(@RequestParam String name, @RequestParam String userId) {
+     return chatRoomRepository.createChatRoom(name, userId);
  }
  // 채팅방 입장 화면
  @GetMapping("/room/enter/{roomId}")
