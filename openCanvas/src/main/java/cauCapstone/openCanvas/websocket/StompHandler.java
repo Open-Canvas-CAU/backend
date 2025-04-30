@@ -40,6 +40,5 @@ public class StompHandler implements ChannelInterceptor{
         }
         return message;
         
-        // TODO: accessor에다가 유저 정보를 넣는 것도 가능하다고한다.
     }
 }

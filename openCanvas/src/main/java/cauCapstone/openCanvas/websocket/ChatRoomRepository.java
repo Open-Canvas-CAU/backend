@@ -39,8 +39,8 @@ public class ChatRoomRepository {
 
     // TODO: 여기에 채팅방을 만드는 사람의 토큰을 가져와야함.
     // 채팅방 객체는 Redis Hash에 "CHAT_ROOMS"라는 키로 저장된다.
-    public ChatRoom createChatRoom(String name, String userId) {
-        ChatRoom chatRoom = ChatRoom.create(name);
+    public ChatRoom createChatRoom(String name, String subject) {
+        ChatRoom chatRoom = ChatRoom.create(name, subject);
         opsHashChatRoom.put(CHAT_ROOMS, chatRoom.getRoomId(), chatRoom);
         
         // roomId별 토픽을 Redis에 등록하고, 리스너를 통해 메시지를 수신하도록 설정한다.
