@@ -32,7 +32,7 @@ public class RedisSubscriber implements MessageListener {
             // ChatMessage 클래스 객체인 roomMessage를 채팅방을 구독자 즉 /sub/chat/room/{roomId}로 전송한다.
             // /sub/chat/room/{roomId}는 토픽이다.
             messagingTemplate.convertAndSend("/sub/chat/room/" + roomMessage.getRoomId(), roomMessage);
-        } catch (Exception e) {
+        } catch (Exception e) {	
             log.error(e.getMessage());
         }
     }

@@ -7,7 +7,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import java.time.Duration;
 
-import cauCapstone.openCanvas.jwt.SessionRegistryService;
 import lombok.RequiredArgsConstructor;
 
 // 채팅방에서 메시지를 작성하면 해당 메시지를 topic에 발행한다.
@@ -19,11 +18,12 @@ public class RedisPublisher {
 	private final ChatRoomRepository chatRoomRepository;
 	private final SessionRegistryService sessionRegistryService;
  
+	// 문서편집(chat) 메시지를 publish할때 쓴다.
 	// createRoom할때 저장했던 편집자 subject를 roomId를 통해 꺼내고, 
 	// 현재 메시지를 보내는 사람의 subject를 sessionId를 통해 가져온다.
 	// 락이없다면 편집자 subject와 메시지 발행자 subject를 비교하고 락을 걸고 메시지를 보내고,
 	// 락이 있다면 메시지 발행자 subject 검증을 하고 메시지를 보낸다.
-	public void publish(ChannelTopic topic, ChatMessage message, String sessionId) {
+	public void editPublish(ChannelTopic topic, ChatMessage message, String sessionId) {
 		
         String subject = sessionRegistryService.getSubjectBySessionId(sessionId);
         String roomId = message.getRoomId();
@@ -57,4 +57,13 @@ public class RedisPublisher {
         // 메시지 발행
         redisTemplate.convertAndSend(topic.getTopic(), message);
     }
+	
+	public void updatePublish(ChannelTopic topic, ChatMessage message, String sessionId) {
+        redisTemplate.convertAndSend(topic.getTopic(), message);
+	}
+	
+	public void publish(ChannelTopic topic, ChatMessage message, String sessionId) {
+        redisTemplate.convertAndSend(topic.getTopic(), message);
+	}
+	
 }

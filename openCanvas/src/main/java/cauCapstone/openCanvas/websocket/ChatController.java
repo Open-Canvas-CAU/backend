@@ -25,16 +25,18 @@ public class ChatController {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(rawMessage);
         String sessionId = accessor.getSessionId();
 
-    	
-    	// TODO: 입장메시지인데 문서방에서는 필요없을듯.
-        if (ChatMessage.MessageType.ENTER.equals(message.getType())) {
-            message.setMessage(message.getSender() + "님이 입장하셨습니다.");
+        if(ChatMessage.MessageType.EDIT.equals(message.getType())) {
+            // 문서편집, 작성을 할 때는 messageType를 EDIT으로 지정해야한
+            // 발행요청한 메시지를 /sub/chat/room/{roomId}로 보낸다.
+            // 클라이언트는 /sub/chat/room/{roomId}를 구독하고 있으면 메시지를 전달받는다.
+            // /sub/chat/room/{roomId}는 토픽이다.
+            // redis에서는 session id를 통해 메시지를 보내는 사람이 편집권한이 있는지 확인한다.
+            redisPublisher.editPublish(new ChannelTopic(message.getRoomId()), message, sessionId);
+        }else {
+            // 클라이언트가 보낸 메시지인데 EDIT가 아니면 위조 의심 → 차단
+        	// subscribe/ unsubscribe 상황에서는 ChatController에서 메시지를 보내는 것이 아닌 직접 보내는거라 EDIT 외엔 오류라고 판단한다.
+            throw new IllegalArgumentException("허용되지 않은 메시지 타입");
         }
-        
-        // 발행요청한 메시지를 /sub/chat/room/{roomId}로 보낸다.
-        // 클라이언트는 /sub/chat/room/{roomId}를 구독하고 있으면 메시지를 전달받는다.
-        // /sub/chat/room/{roomId}는 토픽이다.
-        // redis에서는 session id를 통해 메시지를 보내는 사람이 편집권한이 있는지 확인한다.
-        redisPublisher.publish(new ChannelTopic(message.getRoomId()), message, sessionId);
+     
     }
 }
