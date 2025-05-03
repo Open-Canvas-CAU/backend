@@ -46,4 +46,14 @@ public class RedisConfig {
 		redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(String.class));
 		return redisTemplate;
 	}
+	
+	// DISCONNECT시에 3분 TTL 키가 만료됬는지 확인하기 위한 리스너이다.
+	@Bean
+	public RedisKeyExpirationListener redisKeyExpirationListener(
+	        RedisMessageListenerContainer container,
+	        SubscribeRegistryService subscribeRegistryService,
+	        ChatRoomRepository chatRoomRepository,
+	        SessionRegistryService sessionRegistryService) {
+	    return new RedisKeyExpirationListener(container, subscribeRegistryService, chatRoomRepository, sessionRegistryService);
+	}
 }

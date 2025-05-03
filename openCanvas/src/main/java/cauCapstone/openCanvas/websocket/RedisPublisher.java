@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 
 // 채팅방에서 메시지를 작성하면 해당 메시지를 topic에 발행한다.
 // 메시지를 발행하면 대기하고 있던 redis 구독 서비스가 메시지를 처리한다.
+// 5.4에 세션 id를 파라미터에서 지웠는데 필요없는지 확인해야한다.
 @RequiredArgsConstructor
 @Service
 public class RedisPublisher {
@@ -58,11 +59,11 @@ public class RedisPublisher {
         redisTemplate.convertAndSend(topic.getTopic(), message);
     }
 	
-	public void updatePublish(ChannelTopic topic, ChatMessage message, String sessionId) {
+	public void updatePublish(ChannelTopic topic, ChatMessage message) {
         redisTemplate.convertAndSend(topic.getTopic(), message);
 	}
 	
-	public void publish(ChannelTopic topic, ChatMessage message, String sessionId) {
+	public void publish(ChannelTopic topic, ChatMessage message) {
         redisTemplate.convertAndSend(topic.getTopic(), message);
 	}
 	

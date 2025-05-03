@@ -24,6 +24,7 @@ public class StompHandler implements ChannelInterceptor{
     private final SessionRegistryService sessionRegistryService;
     private final SubscribeRegistryService subscribeRegistryService;
 	private final RedisPublisher redisPublisher;
+    private final RedisTemplate<String, String> redisTemplate;
 	
 	@Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -34,6 +35,7 @@ public class StompHandler implements ChannelInterceptor{
         // websocket 연결시(Stompcommand.CONNECT) 헤더의 jwt token 검증
         // 토큰을 꺼내서 redis에 sessionId, subject(유저 정보) 저장.
         // 토큰은 connect 상태에서(웹소켓 연결 상태)만 꺼내고 나중에는 유저정보는 sessionId를 이용해 redis에서 참조하도록함.
+        // TODO: 연결이 끊기고 다시 그 방에 재접속을 한다면(SUBSCRIBE) WebSocketEventListener의 3분 ttl키를 삭제해야함.
         if (StompCommand.CONNECT == accessor.getCommand()) {
             Claims claims = jwtTokenizer.verifySignature(accessor.getFirstNativeHeader("token"), base64EncodedSecretKey);
             
@@ -59,19 +61,24 @@ public class StompHandler implements ChannelInterceptor{
         	updateMessage.setRoomId(roomId);
         	updateMessage.setSubject(subject);
         	updateMessage.setMessage(subject+" 유저가 "+roomId+"를 구독함.");
+        
+        	// 3분 TTL 키에 해당하는 부분을 실제 키가 있던 없던 지우는 동작을 한다.
+        	String disconnectKey = "disconnect:" + roomId + ":" + subject;
+        	redisTemplate.delete(disconnectKey);
 
-        	redisPublisher.publish(new ChannelTopic(roomId), updateMessage, sessionId);
+        	redisPublisher.publish(new ChannelTopic(roomId), updateMessage);
         	
         	
         // 문서방 구독해제시(StompCommand.UNSUBSCRIBE) sessionId, subject와 연결한 roomId 정보를 삭제.
+        // TODO: UNSUSCRIBE, DISCONNECT 둘다 문서방을 명시적으로 나간거라 로직이 같아야할 수도 있음.
         }else if (StompCommand.UNSUBSCRIBE == accessor.getCommand()) {
         	String sessionId = accessor.getSessionId();
         	
-        	String roomId = subscribeRegistryService.getRoomIdBySessionId(sessionId);
         	String subject = sessionRegistryService.getSubjectBySessionId(sessionId);
+        	String roomId = subscribeRegistryService.getRoomIdBySubject(subject);
         	
         	if(roomId != null && subject != null) {
-            	subscribeRegistryService.removeSuscribe(sessionId);
+            	subscribeRegistryService.removeSuscribe(subject);
             	
             	// TODO: 메시지 부분은 Service클래스를 따로 만들어서 관리할 수도있다.
             	// StompCommand같은 경우는 StompCommand.SEND가 아니면 메시지가 발행이 안되기 때문에 그 외의 경우엔 메시지 발행을 따로 해준다.
@@ -81,19 +88,25 @@ public class StompHandler implements ChannelInterceptor{
             	updateMessage.setSubject(subject);
             	updateMessage.setMessage(subject+" 유저가 "+roomId+"를 구독 해제함.");
 
-            	redisPublisher.publish(new ChannelTopic(roomId), updateMessage, sessionId);
+            	redisPublisher.publish(new ChannelTopic(roomId), updateMessage);
+        	}else {
+        		// TODO: 문서방이 사라졌을때 동작을 적어야한다.
         	}
         
         	
         // 웹소켓 연결해제시(StompCommand.DISCONNECT)  sessionId, subject와 연결한 roomId 정보를 삭제하고 sessionId와 subject도 삭제.
+        // 만약 연결만 끊긴다면 DISCONNECT가 되고 SUBSCRIBE를 다시 해야하지만 UNSUBSCRIBE 상태는 아니다.
+        // 이 경우는 프론트에서 DISCONNECT 프레임을 보냈을 때 이다(예기치 않게 끊긴 경우가 포함되지 않음).
         }else if (StompCommand.DISCONNECT == accessor.getCommand()) {
         	String sessionId = accessor.getSessionId();
         	
-        	String roomId = subscribeRegistryService.getRoomIdBySessionId(sessionId);
         	String subject = sessionRegistryService.getSubjectBySessionId(sessionId);
+        	String roomId = subscribeRegistryService.getRoomIdBySubject(subject);
         	
         	if(roomId != null && subject != null) {
-            	subscribeRegistryService.removeSuscribe(sessionId);
+                // TODO: 여기 이상있나 테스트해보기
+                // 세션id가 바뀔거기때문에 subscribeRegistryService 관련 내용도 삭제한다.
+            	subscribeRegistryService.removeSuscribe(subject);
             	
             	// TODO: 메시지 부분은 Service클래스를 따로 만들어서 관리할 수도있다.
             	// StompCommand같은 경우는 StompCommand.SEND가 아니면 메시지가 발행이 안되기 때문에 그 외의 경우엔 메시지 발행을 따로 해준다.
@@ -103,7 +116,9 @@ public class StompHandler implements ChannelInterceptor{
             	updateMessage.setSubject(subject);
             	updateMessage.setMessage(subject+" 유저가 "+roomId+"를 구독 해제함.");
 
-            	redisPublisher.publish(new ChannelTopic(roomId), updateMessage, sessionId);
+            	redisPublisher.publish(new ChannelTopic(roomId), updateMessage);
+        	}else {
+        		// TODO: 문서방이 사라졌을때 동작을 적어야한다.
         	}
         	
             sessionRegistryService.removeSession(sessionId);

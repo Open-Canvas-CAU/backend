@@ -9,9 +9,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ChatMessage {
-    // 메시지 타입 : UPDATE(유저변경),EDIT(문서작성)
+    // 메시지 타입 : UPDATE(유저변경),EDIT(문서작성), ROOMOUT(편집자가 나가서 기존 유저도 나가야함)
     public enum MessageType {
-        UPDATE, EDIT
+        UPDATE, EDIT, ROOMOUT
     }
     
     private MessageType type; // 메시지 타입

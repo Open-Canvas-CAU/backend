@@ -2,8 +2,10 @@ package cauCapstone.openCanvas.websocket;
 
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,6 +26,7 @@ public class ChatRoomController {
 
  private final ChatRoomRepository chatRoomRepository;
  private final JwtTokenizer jwtTokenizer;
+ private final SubscribeRegistryService subscribeRegistryService;
 
  // 채팅 리스트 화면
  @GetMapping("/room")
@@ -54,6 +57,28 @@ public class ChatRoomController {
 	 String subject = claims.getSubject();
 	 
      return chatRoomRepository.createChatRoom(name, subject);
+ }
+ 
+ 
+ // TODO: 문서방에서 작성한 문서를 저장하는 역할이 필요함.
+ // TODO: 여기 작성 해야함.
+ // 프론트 쪽에서 편집자만 문서방 종료 버튼이 보이게 만들어야함.
+ @DeleteMapping("/room/{roomId}")
+ public ResponseEntity<Void> deleteRoom(@PathVariable String roomId, @RequestHeader("Authorization") String token){
+	 // 1. 토큰파싱: Bearer 붙어있으면 제거, 아니면 그대로 사용
+	 String rawToken = token != null && token.startsWith("Bearer ") ? token.substring(7) : token;
+	 
+	 // 2. 시크릿키로 토큰검증 및 Claims 추출
+	 String base64Key = jwtTokenizer.encodeBase64SecretKey();
+	 Claims claims = jwtTokenizer.verifySignature(rawToken, base64Key);
+	 
+	 // 3. subject를 유저 식별자로 활용
+	 String subject = claims.getSubject();
+	 
+	 // subscribeRegistryService.registerEditorSubject 실행. 검증 및 ChatRoom의 삭제까지 함.
+	 subscribeRegistryService.registerEditorSubject(roomId, subject);
+	 
+	 return ResponseEntity.noContent().build();
  }
  
  // 채팅방 입장 화면
