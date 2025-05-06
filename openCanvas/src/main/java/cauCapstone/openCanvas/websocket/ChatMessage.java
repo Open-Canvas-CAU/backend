@@ -1,5 +1,7 @@
 package cauCapstone.openCanvas.websocket;
 
+import java.util.Map;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,7 +19,10 @@ public class ChatMessage {
     private MessageType type; // 메시지 타입
     private String roomId; // 방번호
     private String subject; // 메시지 보낸사람
-    private String message; // 메시지
+    private String message; // 일반 String 메시지, String 메시지가 필요하다면 이것을 사용한다.
+    
+    private Map<String, Object> delta; // delta와 timestamp는 델타함수를 pub/sub으로 전달할 때 사용하기 위함이다.
+    private Long timestamp;
 }
 
 // subscribe/ unsubscribe에서 흐름은 백엔드에서 메시지를 보냄 -> 메시지타입을 프론트에서 받음 -> 

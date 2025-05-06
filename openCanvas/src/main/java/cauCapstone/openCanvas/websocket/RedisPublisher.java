@@ -5,6 +5,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.time.Duration;
 
 import lombok.RequiredArgsConstructor;
@@ -18,7 +21,8 @@ public class RedisPublisher {
 	private final RedisTemplate<String, Object> redisTemplate;
 	private final ChatRoomRepository chatRoomRepository;
 	private final SessionRegistryService sessionRegistryService;
- 
+	private final ObjectMapper objectMapper;
+	
 	// 문서편집(chat) 메시지를 publish할때 쓴다.
 	// createRoom할때 저장했던 편집자 subject를 roomId를 통해 꺼내고, 
 	// 현재 메시지를 보내는 사람의 subject를 sessionId를 통해 가져온다.
@@ -29,6 +33,7 @@ public class RedisPublisher {
         String subject = sessionRegistryService.getSubjectBySessionId(sessionId);
         String roomId = message.getRoomId();
         String lockKey = "lock:document:" + roomId;
+        String DELTA_LIST_PREFIX = "delta:";
         
         String lockOwner = (String) redisTemplate.opsForValue().get(lockKey);
 		
@@ -54,9 +59,23 @@ public class RedisPublisher {
             // TTL 연장 (편집 중)
             redisTemplate.expire(lockKey, Duration.ofMinutes(5));
         }
-
-        // 메시지 발행
-        redisTemplate.convertAndSend(topic.getTopic(), message);
+        
+        try {
+        	// 여기서 timestamp를 찍음.
+        	message.setTimestamp(System.currentTimeMillis());
+            // 메시지 발행
+            redisTemplate.convertAndSend(topic.getTopic(), message);
+            
+            // 델타 저장: zadd로 저장한다. {roomId}를 키로, json을 맴버로 timestamp를 스코어로 저장한다.
+            // TODO: 델타의 형식에 따라 다르게 파싱해서 저장해야할 수도 있음.
+            String key = DELTA_LIST_PREFIX + message.getRoomId();
+            if (message.getDelta() != null) {
+                String json = objectMapper.writeValueAsString(message.getDelta());
+                redisTemplate.opsForZSet().add(key, json, message.getTimestamp());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to publish or store delta", e);
+        }
     }
 	
 	public void updatePublish(ChannelTopic topic, ChatMessage message) {
