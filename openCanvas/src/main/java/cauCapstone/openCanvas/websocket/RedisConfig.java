@@ -20,8 +20,7 @@ public class RedisConfig {
 	// RedisConnectionFactory를 통해 Redis와 연결한다.
     @Bean
     public RedisMessageListenerContainer redisMessageListener(RedisConnectionFactory connectionFactory,
-                                                              MessageListenerAdapter listenerAdapter,
-                                                              ChannelTopic channelTopic) {
+                                                              MessageListenerAdapter listenerAdapter) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
         return container;
@@ -52,8 +51,7 @@ public class RedisConfig {
 	public RedisKeyExpirationListener redisKeyExpirationListener(
 	        RedisMessageListenerContainer container,
 	        SubscribeRegistryService subscribeRegistryService,
-	        ChatRoomRepository chatRoomRepository,
-	        SessionRegistryService sessionRegistryService) {
-	    return new RedisKeyExpirationListener(container, subscribeRegistryService, chatRoomRepository, sessionRegistryService);
+	        RemoveChatRoomRepository chatRoomRepository) {
+	    return new RedisKeyExpirationListener(container, subscribeRegistryService, chatRoomRepository);
 	}
 }

@@ -16,17 +16,14 @@ import org.springframework.stereotype.Component;
 public class RedisKeyExpirationListener extends KeyExpirationEventMessageListener {
 
     private final SubscribeRegistryService subscribeRegistryService;
-    private final SessionRegistryService sessionRegistryService;
-    private final ChatRoomRepository chatRoomRepository;
+    private final RemoveChatRoomRepository chatRoomRepository;
 
     public RedisKeyExpirationListener(RedisMessageListenerContainer listenerContainer,
                                       SubscribeRegistryService subscribeRegistryService,
-                                      ChatRoomRepository chatRoomRepository,
-                                      SessionRegistryService sessionRegistryService) {
+                                      RemoveChatRoomRepository chatRoomRepository) {
         super(listenerContainer);
         this.subscribeRegistryService = subscribeRegistryService;
         this.chatRoomRepository = chatRoomRepository;
-        this.sessionRegistryService = sessionRegistryService;
     }
 
     @Override

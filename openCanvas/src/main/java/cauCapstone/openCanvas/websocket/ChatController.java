@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 @Controller
 public class ChatController {
 
-	private final RedisPublisher redisPublisher;
+	private final RedisEditPublisher redisPublisher;
 
     // @MessageMapping을 통해서 웹소켓으로 들어오는 메시지 발행을 처리한다.
     // 클라이언트가 메시지 발행 요청을 할 때에는 prefix를 붙여서 /pub/chat/message로 해야한다.
