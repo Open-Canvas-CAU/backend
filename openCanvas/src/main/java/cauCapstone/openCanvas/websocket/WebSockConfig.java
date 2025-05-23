@@ -28,7 +28,8 @@ public class WebSockConfig implements WebSocketMessageBrokerConfigurer {
     // 다른 서버에서 오는 요청을 허용하기 위해 setAllowdOrigins("*")를 한다.
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws-stomp").setAllowedOrigins("*")
+        registry.addEndpoint("/ws-stomp").setAllowedOriginPatterns("http://localhost:3000") // CORS 에러 방지
+        //.setAllowedOrigins("*") // 이게 더 범위 넓음
                 .withSockJS();	// 웹소켓 미지원 환경에서도 연결 가능하게 한다.
     }
     

@@ -11,12 +11,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Duration;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 // 채팅방에서 메시지를 작성하면 해당 메시지를 topic에 발행한다.
 // 메시지를 발행하면 대기하고 있던 redis 구독 서비스가 메시지를 처리한다.
 // 5.4에 세션 id를 파라미터에서 지웠는데 필요없는지 확인해야한다.
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class RedisEditPublisher {
 	private final RedisTemplate<String, Object> redisTemplate;
 	private final ChatRoomRepository chatRoomRepository;
@@ -78,5 +80,35 @@ public class RedisEditPublisher {
         }
     }
 	
-	
+	/*
+	// TODO: 테스트용. 삭제하기
+	public boolean testEditPublish(ChannelTopic topic, ChatMessage message) {
+		String tempEditor = "b";
+		
+        String roomId = message.getRoomId();
+        log.info("message roomId: "+ roomId);
+        String key= "ws:subscribe:room:1234:editorSubject";
+        
+        /*
+        Object value = redisTemplate.opsForValue().get(key);
+        if (value instanceof String) {
+            String editorSubject = (String) value;
+            log.info("editorSubject: " + editorSubject);
+        } else {
+            log.warn("Value is not a String"+value);
+        } 
+        
+        redisTemplate.opsForValue().set(key, "b");
+        
+        String editorSubject = (String) redisTemplate.opsForValue().get(key);
+
+        log.info("editorSubject: "+editorSubject);
+        
+        if (!tempEditor.equals(editorSubject)) {
+            return false;
+        }
+        
+        return true;
+	}
+	*/
 }

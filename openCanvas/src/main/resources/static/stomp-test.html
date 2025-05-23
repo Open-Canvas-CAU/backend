@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>STOMP Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
+  </head>
+  <body>
+    <button onclick="connect()">Connect</button>
+    <button onclick="sendMessage()">Send Message</button>
+    <div id="response"></div>
+    <script>
+      let stompClient = null;
+      const roomId = '1234'; // 테스트할 roomId 지정 (예: '1234')
+
+      // 연결 함수
+      function connect() {
+        const socket = new SockJS('http://localhost:8080/ws-stomp');
+        stompClient = Stomp.over(socket);
+        
+        stompClient.connect({'token': 'girog$e#^^gmurnfjgi##*fmrkgir%%tkgmHTgk%G$#G%%T$%HG%$f3uhfhsdhjbfhjbrhbfhjbsadhjbfasdhjbfhebhbf'}, function(frame) {
+          console.log('Connected: ' + frame);
+          
+          // 구독 경로를 /sub/chat/room/{roomId}로 변경
+          stompClient.subscribe('/sub/chat/room/' + roomId, function(messageOutput) {
+            console.log('Received: ' + messageOutput.body);
+            document.getElementById("response").innerText = messageOutput.body;
+          });
+        });
+      }   
+
+      // 메시지 전송 함수
+      function sendMessage() {
+        if (stompClient) {
+          // 메시지를 /pub/chat/message로 전송
+          stompClient.send("/pub/chat/message", {}, JSON.stringify({
+            message: "Hello, World!",
+            roomId: roomId  // 메시지 타입을 EDIT로 설정
+          }));
+        }
+      }    
+    </script>
+  </body>
+</html>

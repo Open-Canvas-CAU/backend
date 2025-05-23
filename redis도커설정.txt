@@ -10,3 +10,5 @@ notify-keyspace-events Ex 주석만(#만) 지운다.
 docker run --name my-redis -v /절대경로/redis.conf:/usr/local/etc/redis/redis.conf -p 6379:6379 redis redis-server /usr/local/etc/redis/redis.conf
 
 C:\ 같은 절대경로를 쓰면안되고 wsl 절대경로를 써야한다.
+
+현재까진 bind 0.0.0.0을 바꾸는 설정까지 진행했다.

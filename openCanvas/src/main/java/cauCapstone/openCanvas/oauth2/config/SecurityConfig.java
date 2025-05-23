@@ -11,6 +11,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import cauCapstone.openCanvas.oauth2.handler.OAuth2AuthenticationFailureHandler;
 import cauCapstone.openCanvas.oauth2.handler.OAuth2AuthenticationSuccessHandler;
@@ -18,6 +21,8 @@ import cauCapstone.openCanvas.oauth2.oauth2.HttpCookieOAuth2AuthorizationRequest
 import cauCapstone.openCanvas.oauth2.oauth2.service.CustomOAuth2UserService;
 
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @Configuration
@@ -33,6 +38,7 @@ public class SecurityConfig {
 	    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
 		  	// disable 한것들은 h2 console 때문에 했음. TODO: 배포환경에선 두번째줄인 headers frameOptions는 disable 하면 안됨.
 	        http.csrf(AbstractHttpConfigurer::disable)
+	        .cors(cors -> cors.configurationSource(corsConfigurationSource()))  // 임시 CROS 허용
             .headers(headersConfigurer -> headersConfigurer.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)) // For H2 DB
             .formLogin(AbstractHttpConfigurer::disable)
             .httpBasic(AbstractHttpConfigurer::disable)
@@ -40,6 +46,7 @@ public class SecurityConfig {
             // TODO: h2-console 관련은 추후에 지운다, permitAll 전체 열람 가능하다. 로그인 없이도 열람가능한 url은 다시 설정해야한다.
             // 나머지 기능은 권한이 있어야한다. 로그인 없이도 열람가능한 url은 다시 설정해야한다.
             .authorizeHttpRequests((requests) -> requests
+            	    .requestMatchers("/**").permitAll()	// 임시 CROS 허용
                     .requestMatchers(antMatcher("/api/admin/**")).hasRole("ADMIN")
                     .requestMatchers(antMatcher("/api/user/**")).hasRole("USER")
                     .requestMatchers(antMatcher("/h2-console/**")).permitAll()
@@ -58,5 +65,20 @@ public class SecurityConfig {
             		);
 
 	        return http.build();
+	  }
+	  
+	  // 임시 CROS 허용
+	  @Bean
+	  public CorsConfigurationSource corsConfigurationSource() {
+	      CorsConfiguration config = new CorsConfiguration();
+	      config.setAllowCredentials(true);
+	      config.setAllowedOriginPatterns(List.of("http://localhost:3000"));  // 정확한 Origin 설정
+	      config.setAllowedHeaders(List.of("*"));
+	      config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+	      config.setExposedHeaders(List.of("Authorization"));
+
+	      UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+	      source.registerCorsConfiguration("/**", config);
+	      return source;
 	  }
 }

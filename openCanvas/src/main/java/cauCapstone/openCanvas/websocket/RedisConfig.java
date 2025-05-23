@@ -4,6 +4,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
@@ -15,6 +17,16 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 
 @Configuration
 public class RedisConfig {
+	
+	// TODO: localhost(컨테이너)는 테스트용이다.
+    // RedisConnectionFactory 설정 (Docker Redis 사용 시 호스트 설정)
+    @Bean
+    public RedisConnectionFactory redisConnectionFactory() {
+        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
+        config.setHostName("localhost");  // Docker 환경에서 Redis에 연결하기 위한 설정
+        config.setPort(6379);  // Redis 기본 포트
+        return new LettuceConnectionFactory(config);  // LettuceConnectionFactory 사용
+    }
 	
 	// pub/sub 기능을 사용할 때, 구독한 채널의 메세지를 수신하기 위해 RedisMessageListener를 사용한다.
 	// RedisConnectionFactory를 통해 Redis와 연결한다.

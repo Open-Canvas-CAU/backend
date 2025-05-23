@@ -37,15 +37,20 @@ public class StompHandler implements ChannelInterceptor{
         // 토큰은 connect 상태에서(웹소켓 연결 상태)만 꺼내고 나중에는 유저정보는 sessionId를 이용해 redis에서 참조하도록함.
         // TODO: 연결이 끊기고 다시 그 방에 재접속을 한다면(SUBSCRIBE) WebSocketEventListener의 3분 ttl키를 삭제해야함.
         if (StompCommand.CONNECT == accessor.getCommand()) {
-            Claims claims = jwtTokenizer.verifySignature(accessor.getFirstNativeHeader("token"), base64EncodedSecretKey);
-            
-            String subject = claims.getSubject();
-            
-            String sessionId = accessor.getSessionId();
-            sessionRegistryService.registerSession(sessionId, subject);
+        	
+            try {
+                Claims claims = jwtTokenizer.verifySignature(accessor.getFirstNativeHeader("token"), base64EncodedSecretKey);
+                String subject = claims.getSubject();
+                String sessionId = accessor.getSessionId();
+                sessionRegistryService.registerSession(sessionId, subject);
+            } catch (Exception e) {
+                log.error("Error while verifying token", e);
+            }
+
         
         // 문서방 구독시(Stompcommand.SUBSCRIBE) roomId를 추출하고, sessionId, subject, roomId를 저장.
         }else if (StompCommand.SUBSCRIBE == accessor.getCommand()) {
+        	
         	String destination = accessor.getDestination();
             String roomId = extractRoomId(destination);
         	
@@ -66,8 +71,9 @@ public class StompHandler implements ChannelInterceptor{
         	String disconnectKey = "disconnect:" + roomId + ":" + subject;
         	redisTemplate.delete(disconnectKey);
 
-        	redisPublisher.publish(new ChannelTopic(roomId), updateMessage);
-        	
+            log.debug(updateMessage.getMessage()+" 메시지 전송을 시도함.");
+            redisPublisher.publish(new ChannelTopic(roomId), updateMessage);
+
         	
         // 문서방 구독해제시(StompCommand.UNSUBSCRIBE) sessionId, subject와 연결한 roomId 정보를 삭제.
         // TODO: UNSUSCRIBE, DISCONNECT 둘다 문서방을 명시적으로 나간거라 로직이 같아야할 수도 있음.

@@ -16,10 +16,12 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.io.Encoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 
 // 자체 서비스 access 토큰과 refresh 토큰을 생성한다.
 // generateAccessToken 메소드의 claim, subject.. 등등에 넣을 것은 수정이 가능하다.
 // TODO: successHandler에 JwtTokenizer 관련 로직을 넣어야한다.
+@Slf4j
 @Component
 public class JwtTokenizer {
 	
@@ -99,6 +101,7 @@ public class JwtTokenizer {
 			// 이런식으로 claims를 꺼낼 수 있다.
 			String subject = claims.getSubject();
 			
+	        log.info("Parsed Claims: " + claims);
 			return claims;
 			
 		} catch (JwtException e) {

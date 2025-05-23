@@ -9,9 +9,11 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import redis.embedded.RedisServer;
 
+/*
 // 로컬 환경일 경우 embedded redis 서버가 실행된다.
 
-@Profile("local")
+// TODO: TEST embedded reids 끄기
+//@Profile("local")
 @Configuration
 public class EmbeddedRedisConfig {
 	
@@ -20,7 +22,8 @@ public class EmbeddedRedisConfig {
 	private int redisPort;
 	
 	private RedisServer redisServer;
-	
+
+
 	// redisServer 시작
 	@PostConstruct
 	public void redisServer() {
@@ -35,4 +38,6 @@ public class EmbeddedRedisConfig {
 			redisServer.stop();
 		}
 	}
+	
 }
+*/
