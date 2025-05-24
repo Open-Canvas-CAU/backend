@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 // 댓글에 관한 엔티티.
+// TODO: Writing 파트를 추가해야할 수도 있음(어느 문단에 대해 얘기하고 있는지).
 @NoArgsConstructor
 @Setter
 @Getter

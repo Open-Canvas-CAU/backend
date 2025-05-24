@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+// TODO: 추가한 필드 title 때문에 문제생기나 확인
 @Getter 
 @Setter
 @NoArgsConstructor
@@ -28,12 +29,14 @@ public class ContentDto {
 	private int likeNum;
 	private LikeType likeType;
 	
+	private String title;	// title 항목 추가
+	
 	public Content toEntity(Cover cover) {
 		return new Content(cover);
 	}
 	
 	public ContentDto(Long id, int view, List<ResCommentDto> commentDtos, List<WritingDto> writingDtos, 
-			CoverDto coverDto, int likeNum, LikeType likeType) {
+			CoverDto coverDto, int likeNum, LikeType likeType, String title) {
 		this.id = id;
 		this.view = view;
 		this.commentDtos = commentDtos;
@@ -41,6 +44,7 @@ public class ContentDto {
 		this.coverDto = coverDto;
 		this.likeNum = likeNum;
 		this.likeType = likeType;
+		this.title = title;
 	}
 	
 	public ContentDto (Long id, int view, List<ResCommentDto> commentDtos, List<WritingDto> writingDtos, 
@@ -51,6 +55,7 @@ public class ContentDto {
 		this.writingDtos = writingDtos;
 		this.likeDtos = likeDtos;
 		this.coverDto = coverDto;
+		this.title = coverDto.getTitle();
 	}
 	
 	public static ContentDto fromEntityWithLike(Content content, int likeNum, LikeType likeType) {
@@ -61,8 +66,10 @@ public class ContentDto {
     			.map((writing) -> WritingDto.fromEntity(writing)).toList();
 		
 		CoverDto coverDto = CoverDto.fromEntity(content.getCover());
+		
+		String title = coverDto.getTitle();
     	
-    	return new ContentDto(content.getId(), content.getView(), commentDtos, writingDtos, coverDto, likeNum, likeType);
+    	return new ContentDto(content.getId(), content.getView(), commentDtos, writingDtos, coverDto, likeNum, likeType, title);
 	}
 	
 	public static ContentDto fromEntity(Content content) {

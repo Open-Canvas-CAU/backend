@@ -1,6 +1,7 @@
 package cauCapstone.openCanvas.rdb.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -19,5 +20,5 @@ public interface UserRepository extends JpaRepository<User, Long>{
 	""")
 	List<Content> findContentWithLikeByUserId(@Param("userId") Long id);
 	
-	//TODO: writing 과의 관계도 만들어야함.
+	Optional<User> findByEmail(String email);
 }

@@ -21,4 +21,5 @@ public interface ContentRepository extends JpaRepository<Content, Long>{
     @Query("SELECT COUNT(l) FROM Like l WHERE l.content.id = :contentId")
     int countLikesById(@Param("contentId") Long id);
     
+    Optional<Content> findByTitle(String title);
 }
