@@ -6,9 +6,11 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import cauCapstone.openCanvas.rdb.dto.ContentDto;
+import cauCapstone.openCanvas.rdb.dto.ReportDto;
 import cauCapstone.openCanvas.rdb.dto.UserDto;
 import cauCapstone.openCanvas.rdb.dto.WritingDto;
 import cauCapstone.openCanvas.rdb.entity.Content;
+import cauCapstone.openCanvas.rdb.entity.Role;
 import cauCapstone.openCanvas.rdb.entity.User;
 import cauCapstone.openCanvas.rdb.entity.Writing;
 import cauCapstone.openCanvas.rdb.repository.ContentRepository;
@@ -55,7 +57,7 @@ public class WritingService {
     	
     	while(writingDto.getDepth() >0) {
             Writing current = writingRepository
-                    .findByDepthAndSiblingIndexAndContentId(curDepth, curSiblingIndex, title)
+                    .findByDepthAndSiblingIndexAndContent_Title(curDepth, curSiblingIndex, title)
                     .orElseThrow(() ->  new IllegalArgumentException("존재하지 않는 writing입니다."));
                         
                 allWritingDtos.add(WritingDto.fromEntity(current));
@@ -81,7 +83,8 @@ public class WritingService {
         Writing parent = null;
         if (writingDto.getDepth() > 1) {
             parent = writingRepository
-                .findByDepthAndSiblingIndexAndContentId(writingDto.getDepth()-1, writingDto.getParentSiblingIndex(), content.getTitle())
+                .findByDepthAndSiblingIndexAndContent_Title(writingDto.getDepth()-1, writingDto.getParentSiblingIndex(), 
+                		content.getTitle())
                 .orElseThrow(() -> new IllegalArgumentException("부모 글이 존재하지 않습니다."));
         }
 
@@ -93,6 +96,7 @@ public class WritingService {
     
     // 루트 사용자(맨처음 글을 쓴 사람) 확인하고 삭제하기: 실제 삭제가 아니라 내용만 빈 내용으로 바꿈(추후에 내용을 변경할 수도 있겠다).
     // 현재유저의 dto와 지우고싶은 writingDto를 받음.
+    // TODO: 글을 쓴 사람은 변경 하지 않았는데, 안보이게 하는 조치가 필요함.
     @Transactional
     public void deleteByRoot(UserDto userDto, WritingDto writingDto) {
     	Writing userWriting = writingRepository.findByUserNameAndTitle(userDto.getEmail(), writingDto.getTitle())
@@ -100,13 +104,42 @@ public class WritingService {
     	
     	if(userWriting.getDepth() == 1) {
             Writing delete = writingRepository
-                    .findByDepthAndSiblingIndexAndContentId(writingDto.getDepth(), writingDto.getSiblingIndex(), writingDto.getTitle())
+                    .findByDepthAndSiblingIndexAndContent_Title(writingDto.getDepth(), writingDto.getSiblingIndex(), 
+                    		writingDto.getTitle())
                     .orElseThrow(() ->  new IllegalArgumentException("존재하지 않는 writing입니다."));
             
             delete.setBody("");
             writingRepository.save(delete);
     	}else {
     		throw new IllegalArgumentException("유저가 루트가 아닙니다.");
+    	}
+    }
+    
+    // 글(content)의 모든 버전 가져오기
+    // TODO: contentTitle만으로 충분하긴한데 확인해보기.
+    public List<WritingDto> getSimpleWriting(ContentDto contentDto){
+    	 return writingRepository.findAllDtosByContentTitle(contentDto.getTitle());
+    }
+    
+	// ADMIN 유저가 글을 지울 때 쓰는 메소드.
+    // ADMIN 유저의 UserDto와 삭제할 글의 WritingDto를 받음.
+    // 삭제처리(공백처리)된 글의 글쓴이는 admin으로 임시지정함.
+    @Transactional
+    public void deleteByAdmin(UserDto userDto, WritingDto writingDto) {
+    	User user = userRepository.findByEmail(userDto.getEmail())
+    			.orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
+    	
+    	if(user.getRole() == Role.ADMIN) {
+            Writing delete = writingRepository
+                    .findByDepthAndSiblingIndexAndContent_Title(writingDto.getDepth(), writingDto.getSiblingIndex(), 
+                    		writingDto.getTitle())
+                    .orElseThrow(() ->  new IllegalArgumentException("존재하지 않는 writing입니다."));
+            
+            delete.setBody("");
+            delete.setUser(user);
+            writingRepository.save(delete);
+    	}else {
+    		throw new IllegalArgumentException("유저가 어드민이 아닙니다.");
     	}
     }
     
@@ -146,10 +179,4 @@ public class WritingService {
  	
     }
     */
-    
-    // 글(content)의 모든 버전 가져오기
-    // TODO: contentTitle만으로 충분하긴한데 확인해보기.
-    public List<WritingDto> getSimpleWriting(ContentDto contentDto){
-    	 return writingRepository.findAllDtosByContentTitle(contentDto.getTitle());
-    }
 }

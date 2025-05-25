@@ -22,7 +22,7 @@ public class CoverDto {
 	// 조회수
 	private int view;
 	// 좋아요 개수
-	private int likeNum;
+	private Long likeNum;	// TODO: 나중에 잘 안되면 (int) 해서 타입바꾸기.
 	
 	public CoverDto(String title, String coverImageUrl, ContentDto contentDto, LocalDateTime time) {
 		this.title = title;
@@ -31,7 +31,7 @@ public class CoverDto {
 		this.time = time;
 	}
 	
-	public CoverDto(String title, String coverImageUrl, LocalDateTime time, int view, int likeNum) {
+	public CoverDto(String title, String coverImageUrl, LocalDateTime time, int view, Long likeNum) {
 		this.title= title;
 		this.coverImageUrl = coverImageUrl;
 		this.time = time;

@@ -1,10 +1,13 @@
 package cauCapstone.openCanvas.rdb.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,6 +16,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @Entity
+@Table(name = "likes")
 public class Like {
 	@Id 
 	@GeneratedValue
@@ -28,6 +32,6 @@ public class Like {
 	private User user;
 	
 	//LIKE는 좋아요 DISLIKE는 싫어요
-	// TODO: 싫어요는 비딩 시스템에 쓰이기 때문에 씀
+    @Enumerated(EnumType.STRING)
 	private LikeType liketype;
 }

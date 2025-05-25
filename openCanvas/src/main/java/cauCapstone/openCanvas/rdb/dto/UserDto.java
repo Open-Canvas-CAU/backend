@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cauCapstone.openCanvas.rdb.entity.Like;
+import cauCapstone.openCanvas.rdb.entity.Role;
 import cauCapstone.openCanvas.rdb.entity.User;
 import cauCapstone.openCanvas.rdb.entity.Writing;
 import lombok.AllArgsConstructor;
@@ -20,20 +21,31 @@ public class UserDto {
 	private String nickname;
 	private String email;
 	private String color;
+	private Role role;
 	
 	private List<LikeDto> likeDtos = new ArrayList<>();
 	private List<WritingDto> writingDtos = new ArrayList<>();
 
-	public UserDto(Long id, String nickname, String email, String color) {
-		this.id = id;
+	public UserDto(String nickname, String email, String color) {
 		this.nickname = nickname;
 		this.email = email;
 		this.color = color;
 	}
 	
-	// 새로운 유저 저장용
-    public User toEntity() {
-        return new User(nickname, email, color);
+	public UserDto(String nickname, String email, String color, Role role) {
+		this.nickname = nickname;
+		this.email = email;
+		this.color = color;
+		this.role = role;
+	}
+	
+	public User toEntity() {
+		return new User(nickname, email, role);
+	}
+	
+	// 유저의 색상을 정해야할때 
+    public User toEntityColor() {
+        return new User(nickname, email, color, role);
     }
     
     // 좋아요 했던 것과 글썼던 목록도 보기위한 UserDto
@@ -44,6 +56,6 @@ public class UserDto {
     	List<WritingDto> writingDtos = user.getWritings().stream()
     			.map((writing) -> WritingDto.fromEntity(writing)).toList();
     	
-    	return new UserDto(user.getId(), user.getNickname(), user.getEmail(), user.getColor(), likeDtos, writingDtos);
+    	return new UserDto(user.getId(), user.getNickname(), user.getEmail(), user.getColor(), user.getRole(), likeDtos, writingDtos);
     }
 }

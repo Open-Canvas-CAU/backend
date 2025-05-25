@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import cauCapstone.openCanvas.rdb.dto.UserDto;
 import cauCapstone.openCanvas.rdb.entity.Content;
+import cauCapstone.openCanvas.rdb.entity.Role;
 import cauCapstone.openCanvas.rdb.entity.User;
 import cauCapstone.openCanvas.rdb.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,8 +17,9 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 	private final UserRepository userRepository;
 	
-	// 유저정보 저장
+	// 유저정보 저장, 기본적으로 role은 user이다.
     public User save(UserDto userDto) {
+    	userDto.setRole(Role.USER);
     	User user = userDto.toEntity();
     	return userRepository.save(user); 
     	}

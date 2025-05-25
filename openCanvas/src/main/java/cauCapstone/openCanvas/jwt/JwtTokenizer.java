@@ -20,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 
 // 자체 서비스 access 토큰과 refresh 토큰을 생성한다.
 // generateAccessToken 메소드의 claim, subject.. 등등에 넣을 것은 수정이 가능하다.
-// TODO: successHandler에 JwtTokenizer 관련 로직을 넣어야한다.
 @Slf4j
 @Component
 public class JwtTokenizer {
@@ -46,7 +45,7 @@ public class JwtTokenizer {
 		Key key = getKeyFromBase64EncodedKey(encodeBase64SecretKey());
 
 		return Jwts.builder()
-				.setClaims(claims) // 유저정보가 담긴다 수정가능함.
+				.setClaims(claims) // 현재는 email과 role이 담기고있음.
 				.setSubject(subject) // 이메일/유저네임/유저아이디 중에 하나가 들어간다고 한다. 이메일을 넣는게 좋을듯. 수정가능함. 
 				.setIssuedAt(Calendar.getInstance().getTime()) // 언제 발행했는지
 				.setExpiration(expiration) // 만료기간 설정
@@ -69,13 +68,15 @@ public class JwtTokenizer {
 	}
 	
 	// generateRefreshToken 메소드를 쓰고, 리프레시 토큰을 Redis에 저장함.
-	public void generateAndStoreRefreshToken(String subject,
+	public String generateAndStoreRefreshToken(String subject,
 			Date expiration) {
 		
 		String refreshToken = generateRefreshToken(subject, expiration);
 		
 		RefreshToken redisToken = new RefreshToken(subject, refreshToken);
 		refreshTokenRepository.save(redisToken);
+		
+		return refreshToken;
 	}
 	
 	// byte화된 secretKey를 파라미터로 받고 Key 클래스의 secretKey를 리턴한다.
@@ -108,6 +109,16 @@ public class JwtTokenizer {
 	        throw new RuntimeException("유효하지 않은 JWT 토큰입니다.");
 	    }
 		
+	}
+	
+	// 리프레시 토큰을 Redis에서 삭제하는 메소드
+	public void deleteRefreshTokenBySubject(String subject) {
+	    if (refreshTokenRepository.existsById(subject)) {
+	        refreshTokenRepository.deleteById(subject);
+	        log.info("Deleted refresh token for subject(email): {}", subject);
+	    } else {
+	        log.warn("No refresh token found for subject(email): {}", subject);
+	    }
 	}
 }
 

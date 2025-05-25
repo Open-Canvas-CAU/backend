@@ -43,6 +43,8 @@ public class SecurityConfig {
             .formLogin(AbstractHttpConfigurer::disable)
             .httpBasic(AbstractHttpConfigurer::disable)
             // 권한부여(예시로 /api/admin/**은 ADMIN 권한이 있어야한다(url 수정해야할 경우 하기)). 
+            // origin, path에서 path를 제한한다. 임시로 origin은 http://localhost:3030로 설정했고 그 뒤에 오는 것들을 제한한다.
+            // (ex: http://localhost:3030/api/user.. 만 접근할 수 있다)
             // TODO: h2-console 관련은 추후에 지운다, permitAll 전체 열람 가능하다. 로그인 없이도 열람가능한 url은 다시 설정해야한다.
             // 나머지 기능은 권한이 있어야한다. 로그인 없이도 열람가능한 url은 다시 설정해야한다.
             .authorizeHttpRequests((requests) -> requests
@@ -67,7 +69,9 @@ public class SecurityConfig {
 	        return http.build();
 	  }
 	  
-	  // 임시 CROS 허용
+	  // 임시 CROS 허용: http://localhost:3030/* 인것을 허용한다. (ex: http://localhost:3030/api/user...) 
+	  // 여기서 http://localhost:3030은 origin이라고한다.
+	  // TODO: 실제 도메인이 만들어지면 도메인을 넣으면 된다.
 	  @Bean
 	  public CorsConfigurationSource corsConfigurationSource() {
 	      CorsConfiguration config = new CorsConfiguration();

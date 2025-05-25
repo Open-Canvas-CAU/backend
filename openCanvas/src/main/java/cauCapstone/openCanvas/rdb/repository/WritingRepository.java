@@ -34,7 +34,7 @@ public interface WritingRepository extends JpaRepository<Writing, Long> {
 	Optional<Writing> findByUserNameAndTitle(@Param("email") String email, @Param("title") String title);
 	
 	// depth, siblingIndex, contentId로 Writing을 검색한다.
-	Optional<Writing> findByDepthAndSiblingIndexAndContentId(int depth, int siblingIndex, String title);
+	Optional<Writing> findByDepthAndSiblingIndexAndContent_Title(int depth, int siblingIndex, String title);
 	
 	// 글(content)의 모든 WritingDto를 가져온다. WritingDto는 depth와 siblingIndex가 작은 순으로 정렬된다.
 	@Query("""

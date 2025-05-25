@@ -2,6 +2,8 @@ package cauCapstone.openCanvas.oauth2.oauth2.user;
 
 import java.util.Map;
 
+import cauCapstone.openCanvas.rdb.entity.Role;
+
 public class GoogleOAuth2UserInfo implements OAuth2UserInfo{
 	
     private final Map<String, Object> attributes;
