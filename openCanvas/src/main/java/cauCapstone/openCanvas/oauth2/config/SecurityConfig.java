@@ -11,10 +11,13 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import cauCapstone.openCanvas.jwt.JwtAuthenticationFilter;
+import cauCapstone.openCanvas.jwt.JwtTokenizer;
 import cauCapstone.openCanvas.oauth2.handler.OAuth2AuthenticationFailureHandler;
 import cauCapstone.openCanvas.oauth2.handler.OAuth2AuthenticationSuccessHandler;
 import cauCapstone.openCanvas.oauth2.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
@@ -33,6 +36,7 @@ public class SecurityConfig {
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
     private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
+    private final JwtTokenizer jwtTokenizer;
 	
 	  @Bean
 	    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
@@ -64,7 +68,9 @@ public class SecurityConfig {
                     .userInfoEndpoint(config -> config.userService(customOAuth2UserService))
                     .successHandler(oAuth2AuthenticationSuccessHandler)
                     .failureHandler(oAuth2AuthenticationFailureHandler)
-            		);
+            		)
+            // ✅ JWT 필터 추가 (위치 중요!)
+            .addFilterBefore(new JwtAuthenticationFilter(jwtTokenizer), UsernamePasswordAuthenticationFilter.class);
 
 	        return http.build();
 	  }

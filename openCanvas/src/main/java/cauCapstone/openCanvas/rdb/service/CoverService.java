@@ -6,13 +6,17 @@ import org.springframework.stereotype.Service;
 
 import cauCapstone.openCanvas.rdb.dto.CoverDto;
 import cauCapstone.openCanvas.rdb.entity.Cover;
+import cauCapstone.openCanvas.rdb.entity.Role;
+import cauCapstone.openCanvas.rdb.entity.User;
 import cauCapstone.openCanvas.rdb.repository.CoverRepository;
+import cauCapstone.openCanvas.rdb.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class CoverService {
-	private CoverRepository coverRepository;
+	private final CoverRepository coverRepository;
+	private final UserRepository userRepository;
 	
 	// 커버를 생성하는 메소드
 	public Cover makeCover(CoverDto coverDto) {
@@ -35,12 +39,19 @@ public class CoverService {
 		return coverRepository.findAllOrderByViewDesc();
 	}
 	
-	// 커버를 삭제하는 메소드
-	// TODO: 책임을 누가지어야할지(만든 유저)에 따라 메소드를 바꿔야함.
-    public void deleteCover(Long id) {
-        Cover cover = coverRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 Cover입니다."));
+	// ! 유저필요
+	// 커버를 삭제하는 메소드, ADMIN이 삭제할 수 있게함.
+    public void deleteCover(Long id, String email) {
+        User user = userRepository.findByEmail(email)
+	            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+    	
+        if(user.getRole() == Role.ADMIN) {
+            Cover cover = coverRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 Cover입니다."));
 
-        coverRepository.delete(cover);
+                coverRepository.delete(cover);
+        }else {
+        	throw new IllegalArgumentException("유저가 어드민이 아닙니다.");
+        }
     }
 }

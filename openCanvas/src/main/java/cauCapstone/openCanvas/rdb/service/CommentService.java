@@ -21,11 +21,11 @@ public class CommentService {
 	private final ContentRepository contentRepository;
 	private final UserRepository userRepository;
 	
-	// TODO: User는 나중에 토큰을 염두해두고 메소드를 바꿀 필요가 있다.
-	public Comment save(ReqCommentDto commentDto) {
+	// ! 유저필요
+	public Comment save(ReqCommentDto commentDto, String email) {
 	    Content content = contentRepository.findById(commentDto.getContentId())
 	            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 콘텐츠입니다."));
-	        User user = userRepository.findById(commentDto.getUserId())
+	        User user = userRepository.findByEmail(email)
 	            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
 	        Comment comment = commentDto.toEntity(content, user);
@@ -39,9 +39,13 @@ public class CommentService {
                 .map((comment) -> ResCommentDto.fromEntity(comment)).toList();
 	}
 	
+	// ! 유저필요
 	// 댓글을 삭제하는 메소드
-	public void deleteComment(Long commentId, Long userId, Long contentId) {
-	    Comment comment = commentRepository.findByIdAndUserIdAndContentId(commentId, userId, contentId)
+	public void deleteComment(Long commentId, String email, Long contentId) {
+		User user = userRepository.findByEmail(email)
+	            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+		
+	    Comment comment = commentRepository.findByIdAndUserIdAndContentId(commentId, user.getId(), contentId)
 	            .orElseThrow(() -> new IllegalArgumentException("해당 댓글이 존재하지 않거나 삭제 권한이 없습니다."));
 
 	        commentRepository.delete(comment);

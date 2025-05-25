@@ -17,21 +17,40 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 	private final UserRepository userRepository;
 	
+	/*
 	// 유저정보 저장, 기본적으로 role은 user이다.
-    public User save(UserDto userDto) {
+    public User save(String email) {
     	userDto.setRole(Role.USER);
     	User user = userDto.toEntity();
     	return userRepository.save(user); 
     	}
+    */
 	
+	// ! 유저필요
+	// 유저가 있을때 색상을 설정하는 메소드.
+    public User saveColor(String email, String color) {	
+        User user = userRepository.findByEmail(email)
+	            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+    	
+        user.setColor(color);
+        
+    	return userRepository.save(user); 
+    	}
+	
+	// ! 유저필요
 	// id로 유저엔티티 반환
-    public Optional<UserDto> getUser(Long id) { 
-        return userRepository.findById(id)
+    public Optional<UserDto> getUser(String email) { 
+    	
+        return userRepository.findByEmail(email)
                 .map((user) -> UserDto.fromEntity(user));
     	}
 	
+    // ! 유저필요
 	// 유저가 좋아요한 content 반환
-    public List<Content> getLikeContents(Long id){
-    	return userRepository.findContentWithLikeByUserId(id);
+    public List<Content> getLikeContents(String email){
+        User user = userRepository.findByEmail(email)
+	            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+    	
+    	return userRepository.findContentWithLikeByUserId(user.getId());
     }
 }

@@ -69,6 +69,7 @@ public class WritingService {
     	return allWritingDtos;
     }
     
+    // ! 유저 필요한지 체크
     // depth랑 siblingindex, title 받아서 저장하기: 검증절차는 거쳤다고 판단하고 검증 안하고 저장함.
     public Writing saveWriting(WritingDto writingDto) {
         // 1. User 조회
@@ -94,12 +95,13 @@ public class WritingService {
         return writingRepository.save(writing);
     }
     
+    // !유저 필요
     // 루트 사용자(맨처음 글을 쓴 사람) 확인하고 삭제하기: 실제 삭제가 아니라 내용만 빈 내용으로 바꿈(추후에 내용을 변경할 수도 있겠다).
     // 현재유저의 dto와 지우고싶은 writingDto를 받음.
     // TODO: 글을 쓴 사람은 변경 하지 않았는데, 안보이게 하는 조치가 필요함.
     @Transactional
-    public void deleteByRoot(UserDto userDto, WritingDto writingDto) {
-    	Writing userWriting = writingRepository.findByUserNameAndTitle(userDto.getEmail(), writingDto.getTitle())
+    public void deleteByRoot(String email, WritingDto writingDto) {
+    	Writing userWriting = writingRepository.findByUserNameAndTitle(email, writingDto.getTitle())
     	            .orElseThrow(() -> new IllegalArgumentException("유저가 쓴 writing을 찾을 수 없습니다."));
     	
     	if(userWriting.getDepth() == 1) {
@@ -121,12 +123,13 @@ public class WritingService {
     	 return writingRepository.findAllDtosByContentTitle(contentDto.getTitle());
     }
     
+    // ! 유저필요
 	// ADMIN 유저가 글을 지울 때 쓰는 메소드.
     // ADMIN 유저의 UserDto와 삭제할 글의 WritingDto를 받음.
     // 삭제처리(공백처리)된 글의 글쓴이는 admin으로 임시지정함.
     @Transactional
-    public void deleteByAdmin(UserDto userDto, WritingDto writingDto) {
-    	User user = userRepository.findByEmail(userDto.getEmail())
+    public void deleteByAdmin(String email, WritingDto writingDto) {
+    	User user = userRepository.findByEmail(email)
     			.orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
     	
     	if(user.getRole() == Role.ADMIN) {

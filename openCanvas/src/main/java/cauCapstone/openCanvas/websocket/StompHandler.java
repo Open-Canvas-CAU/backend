@@ -38,6 +38,7 @@ public class StompHandler implements ChannelInterceptor{
         // TODO: 연결이 끊기고 다시 그 방에 재접속을 한다면(SUBSCRIBE) WebSocketEventListener의 3분 ttl키를 삭제해야함.
         if (StompCommand.CONNECT == accessor.getCommand()) {
         	
+        	// TODO: 프론트에서는 bearer 붙이지 않고 전달한다.
             try {
                 Claims claims = jwtTokenizer.verifySignature(accessor.getFirstNativeHeader("token"), base64EncodedSecretKey);
                 String subject = claims.getSubject();
