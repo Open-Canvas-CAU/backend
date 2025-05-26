@@ -1,4 +1,4 @@
-package cauCapstone.openCanvas.websocket;
+package cauCapstone.openCanvas.websocket.chatmessage;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
@@ -15,14 +15,17 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Controller
 @Slf4j
-public class ChatController {
+public class ChatMessageController {
 
 	private final RedisEditPublisher redisPublisher;
+    
+	// 테스트용 
+	/*
+	private final RedisMessageListenerContainer redisMessageListener; 
 	private final RedisPublisher tempPublisher;
-	
-	// TODO: 테스트용 지워야함.
-    private final RedisMessageListenerContainer redisMessageListener; 
     private final RedisSubscriber redisSubscriber; // 구독 처리 서비스
+    */
+
 
     // @MessageMapping을 통해서 웹소켓으로 들어오는 메시지 발행을 처리한다.
     // 클라이언트가 메시지 발행 요청을 할 때에는 prefix를 붙여서 /pub/chat/message로 해야한다.
@@ -40,13 +43,15 @@ public class ChatController {
             // /sub/chat/room/{roomId}는 토픽이다.
             // redis에서는 session id를 통해 메시지를 보내는 사람이 편집권한이 있는지 확인한다.
             redisPublisher.editPublish(new ChannelTopic(message.getRoomId()), message, sessionId);
+            
+            
         }else {
         	log.info("메시지타입확인후 else실행.");
             // 클라이언트가 보낸 메시지인데 EDIT가 아니면 위조 의심 → 차단
         	// subscribe/ unsubscribe 상황에서는 ChatController에서 메시지를 보내는 것이 아닌 직접 보내는거라 EDIT 외엔 오류라고 판단한다.
         	
         	/*
-        	// TODO: 테스트용. 지워야함 
+        	// 테스트용. 지워야함 
         	
         	boolean isEditor = redisPublisher.testEditPublish(new ChannelTopic(message.getRoomId()), message);
         	
@@ -58,7 +63,7 @@ public class ChatController {
         	}
         	*/
         	
-        	// TODO: 테스트용. 주석을 지우기.
+        	// 주석을 걸면 테스트용.
             throw new IllegalArgumentException("허용되지 않은 메시지 타입");
         }
      

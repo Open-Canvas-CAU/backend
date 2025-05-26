@@ -11,6 +11,11 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+
+import cauCapstone.openCanvas.websocket.chatmessage.RedisSubscriber;
+import cauCapstone.openCanvas.websocket.chatroom.RemoveChatRoomService;
+import cauCapstone.openCanvas.websocket.chatroom.SubscribeRepository;
+
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 
 // pub/sub 기능과 Redis를 사용하기 위한 설정 클래스이다.
@@ -62,8 +67,8 @@ public class RedisConfig {
 	@Bean
 	public RedisKeyExpirationListener redisKeyExpirationListener(
 	        RedisMessageListenerContainer container,
-	        SubscribeRegistryService subscribeRegistryService,
-	        RemoveChatRoomRepository chatRoomRepository) {
+	        SubscribeRepository subscribeRegistryService,
+	        RemoveChatRoomService chatRoomRepository) {
 	    return new RedisKeyExpirationListener(container, subscribeRegistryService, chatRoomRepository);
 	}
 }

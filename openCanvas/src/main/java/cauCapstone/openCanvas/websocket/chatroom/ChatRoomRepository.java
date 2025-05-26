@@ -1,29 +1,23 @@
-package cauCapstone.openCanvas.websocket;
+package cauCapstone.openCanvas.websocket.chatroom;
 
 import java.util.List;
 
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.listener.ChannelTopic;
-import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Repository;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
-// TODO: 문서방을 만들 때 원래 있던 문서를 가져오는 과정이 필요하다.
-// TODO: 문서방을 만들 때 동시적으로 여러 유저가 문서방을 만드는 것을 막는 락이 필요하다.
-
 @RequiredArgsConstructor
 @Repository
 public class ChatRoomRepository {
  
-    private final RedisMessageListenerContainer redisMessageListener; // 채팅방(topic)에 발행되는 메시지를 수신하는 리스너
-    private final RedisSubscriber redisSubscriber; // 구독 처리 서비스
     private static final String CHAT_ROOMS = "CHAT_ROOM";
+    private static final String LOCK_PREFIX = "lock:doucument:";
+    
     private final RedisTemplate<String, Object> redisTemplate; // Redis 데이터 입출력을 위한 template
-    private HashOperations<String, String, ChatRoom> opsHashChatRoom; // Redis와 Hash 타입을 다루기위한 객체
-    private final SubscribeRegistryService subscribeRegistryService;
+    private HashOperations<String, String, ChatRoomRedisEntity> opsHashChatRoom; // Redis와 Hash 타입을 다루기위한 객체
 
     // 빈 생성 후 HashOperations 객체와 topic Map 초기화를 한다.
     @PostConstruct
@@ -33,17 +27,32 @@ public class ChatRoomRepository {
 
     // Reids의 Hash에서 "CHAT_ROOMS"라는 키에 해당하는 값들을 가져온다.
     // 채팅방 객체는 Redis Hash에 저장된다.
-    public List<ChatRoom> findAllRoom() {
+    public List<ChatRoomRedisEntity> findAllRoom() {
         return opsHashChatRoom.values(CHAT_ROOMS);
     }
 
-    public ChatRoom findRoomById(String id) {
+    public ChatRoomRedisEntity findRoomById(String id) {
         return opsHashChatRoom.get(CHAT_ROOMS, id);
     }
+    
 
+    public void createRoom(ChatRoomRedisEntity room) {
+        opsHashChatRoom.put(CHAT_ROOMS, room.getRoomId(), room);
+    }
+    
+    public void deleteRoom(String roomId) {
+        opsHashChatRoom.delete(CHAT_ROOMS, roomId);
+    }
+    
+    public void deleteLock(String roomId) {
+        redisTemplate.delete(LOCK_PREFIX + roomId);
+    }
+    
+    // 5.26 위치 Service로 옮김
+    /*
     // 채팅방 객체는 Redis Hash에 "CHAT_ROOMS"라는 키로 저장된다.
-    public ChatRoom createChatRoom(String name, String subject) {
-        ChatRoom chatRoom = ChatRoom.create(name, subject);
+    public ChatRoomRedisEntity createChatRoom(String name, String subject) {
+        ChatRoomRedisEntity chatRoom = ChatRoomRedisEntity.create(name, subject);
     
         opsHashChatRoom.put(CHAT_ROOMS, chatRoom.getRoomId(), chatRoom);
         
@@ -62,5 +71,5 @@ public class ChatRoomRepository {
         
         return chatRoom;
     }
-    
+    */
 }

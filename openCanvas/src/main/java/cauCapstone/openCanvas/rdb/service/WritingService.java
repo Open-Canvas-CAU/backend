@@ -2,6 +2,7 @@ package cauCapstone.openCanvas.rdb.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,9 @@ import cauCapstone.openCanvas.rdb.entity.Writing;
 import cauCapstone.openCanvas.rdb.repository.ContentRepository;
 import cauCapstone.openCanvas.rdb.repository.UserRepository;
 import cauCapstone.openCanvas.rdb.repository.WritingRepository;
+import cauCapstone.openCanvas.websocket.chatroom.ChatRoomRedisEntity;
+import cauCapstone.openCanvas.websocket.chatroom.ChatRoomRepository;
+import cauCapstone.openCanvas.websocket.chatroom.SubscribeRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -26,6 +30,7 @@ public class WritingService {
     private final WritingRepository writingRepository;
     private final UserRepository userRepository;
     private final ContentRepository contentRepository;
+    private final ChatRoomRepository chatRoomRepository;
 
     // 현재 depth로 글을 써도 되는지 체크함.
     // 체크하고 문서방 만들기.
@@ -55,7 +60,7 @@ public class WritingService {
     	int curSiblingIndex = writingDto.getSiblingIndex();
     	String title = writingDto.getTitle();
     	
-    	while(writingDto.getDepth() >0) {
+    	while(curDepth >0) {
             Writing current = writingRepository
                     .findByDepthAndSiblingIndexAndContent_Title(curDepth, curSiblingIndex, title)
                     .orElseThrow(() ->  new IllegalArgumentException("존재하지 않는 writing입니다."));
@@ -144,6 +149,48 @@ public class WritingService {
     	}else {
     		throw new IllegalArgumentException("유저가 어드민이 아닙니다.");
     	}
+    }
+    
+    // 문서방에 들어가는 유저가(구독하는 유저) roomId를 받고 보여줘야하는 writingDto 리턴함.
+    // 글을 ChatRoomRedisEntity에 저장된 version이 글을 쓰려고 하는 Writing의 version이기 때문에 그것의 부모의 글부터 가져와야한다.
+    public List<WritingDto> getWritingsWithRoomId(String roomId){
+    	ChatRoomRedisEntity chatRoom = chatRoomRepository.findRoomById(roomId);
+    	
+    	List<WritingDto> allWritingDtos = new ArrayList<>();
+    	
+    	List<Integer> version = getIntVersion(chatRoom.getVersion());
+    	
+    	int curDepth = version.get(0);
+    	int curSiblingIndex = version.get(1);
+    	String title = chatRoom.getName();
+    	
+        curDepth = curDepth - 1;
+        curSiblingIndex = (version.size() > 2 && version.get(2) != null) ? version.get(2) : -1;
+    	
+    	while(curDepth >0) {
+            Writing current = writingRepository
+                    .findByDepthAndSiblingIndexAndContent_Title(curDepth, curSiblingIndex, title)
+                    .orElseThrow(() ->  new IllegalArgumentException("존재하지 않는 writing입니다."));
+                        
+                allWritingDtos.add(WritingDto.fromEntity(current));
+                
+                curDepth = curDepth - 1;
+                curSiblingIndex = (current.getParent() != null) ? current.getParent().getSiblingIndex() : -1;
+    	}
+    	
+    	return allWritingDtos;
+    	
+    }
+    
+    // String으로 되있던 버전을 List<Integer>로 리턴함.
+    public List<Integer> getIntVersion(String version){
+        if (version == null || version.isEmpty()) {
+            return List.of(); // 또는 예외 던지기
+        }
+        
+        return List.of(version.split("\\.")).stream()
+                .map(Integer::parseInt)
+                .collect(Collectors.toList());
     }
     
     /*

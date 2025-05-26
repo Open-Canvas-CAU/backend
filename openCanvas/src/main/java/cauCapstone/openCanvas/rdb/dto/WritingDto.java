@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+// TODO: color 추가해야할듯
 @Getter 
 @Setter
 @NoArgsConstructor

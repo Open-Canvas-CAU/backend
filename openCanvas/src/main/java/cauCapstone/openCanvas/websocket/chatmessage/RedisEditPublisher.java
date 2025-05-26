@@ -1,5 +1,6 @@
-package cauCapstone.openCanvas.websocket;
+package cauCapstone.openCanvas.websocket.chatmessage;
 
+// TODO: 5.26 여기서 스냅샷을 찍고있는데 수정하기
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
@@ -7,6 +8,10 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import cauCapstone.openCanvas.websocket.chatroom.ChatRoomRedisEntity;
+import cauCapstone.openCanvas.websocket.chatroom.ChatRoomRepository;
+import cauCapstone.openCanvas.websocket.chatroom.SessionRepository;
 
 import java.time.Duration;
 
@@ -22,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RedisEditPublisher {
 	private final RedisTemplate<String, Object> redisTemplate;
 	private final ChatRoomRepository chatRoomRepository;
-	private final SessionRegistryService sessionRegistryService;
+	private final SessionRepository sessionRegistryService;
 	private final ObjectMapper objectMapper;
 	
 	// 문서편집(chat) 메시지를 publish할때 쓴다.
@@ -41,7 +46,7 @@ public class RedisEditPublisher {
 		
         if (lockOwner == null) {
             // 락이 없으면, 편집자 검증 후 락 생성
-            ChatRoom room = chatRoomRepository.findRoomById(roomId);
+            ChatRoomRedisEntity room = chatRoomRepository.findRoomById(roomId);
             String editorSubject = room.getSubject();
 
             if (!subject.equals(editorSubject)) {

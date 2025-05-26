@@ -1,10 +1,9 @@
-package cauCapstone.openCanvas.websocket;
+package cauCapstone.openCanvas.websocket.chatroom;
 
 import java.time.Duration;
 import java.util.Set;
 
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -15,10 +14,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class SubscribeRegistryService {
+public class SubscribeRepository {
 	
     private final RedisTemplate<String, String> redisTemplate;
     private static final String SESSION_PREFIX = "ws:subscribe:";
+    private static final String DISCONNECT_PREFIX = "disconnect";
     
     // ChatRoomRepository에서 문서방을 만들 때, roomId, editorSubject를 같이 저장해둔다.
     public void registerEditorSubject(String roomId, String subject) {
@@ -54,7 +54,7 @@ public class SubscribeRegistryService {
     }
     
     // DISCONNECT하거나 UNSUSCRIBE할때 호출해서 세션ID, 유저정보를 삭제한다.
-    // TODO: 내가 편집자라면 '문서방을 닫을 때만' roomId로 된 키에 해당하는 유저정보 셋도 삭제해야한다, 단순 연결이 끊기고 재연결하는 상황에서는 셋을 삭제하면 안된다.
+    // 내가 편집자라면 '문서방을 닫을 때만' roomId로 된 키에 해당하는 유저정보 셋도 삭제해야한다, 단순 연결이 끊기고 재연결하는 상황에서는 셋을 삭제하면 안된다.
     public void removeSuscribe(String subject) {
     	String key1 = SESSION_PREFIX + "subject:" + subject + ":roomId";
     	String roomId = redisTemplate.opsForValue().get(key1);
@@ -62,5 +62,27 @@ public class SubscribeRegistryService {
     	
         redisTemplate.delete(key1);
         redisTemplate.opsForSet().remove(key2, subject);
+    }
+    
+    // disconnect(3분 ttl) 관련 키
+    // disconnect 상태 기록 (3분 TTL)
+    // 3분동안 안들어오면(DISCONNECT) 기본적으로 의도적으로 나갔다고 판단하고, 
+    // 클라이언트도 정상적이지 않다는 것을 인지하는 상황이라 프론트에 알리진 않는다(해당 유저에대한 메시지 보내지않음). 
+    
+    // disconnect 키 생성 메소드
+    private String getDisconnectKey(String roomId, String subject) {
+        return DISCONNECT_PREFIX + ":" + roomId + ":" + subject;
+    }
+    
+    // disconnect 키 저장 메소드
+    public void makeDisconnectKey(String roomId, String subject) {
+        String key = getDisconnectKey(roomId, subject);
+        redisTemplate.opsForValue().set(key, "pending", Duration.ofMinutes(3));
+    }
+    
+    // disconnect 키 삭제 메소드
+    public void removeDisconnectKey(String roomId, String subject) {
+        String key = getDisconnectKey(roomId, subject);
+        redisTemplate.delete(key);
     }
 }

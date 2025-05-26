@@ -1,26 +1,26 @@
 package cauCapstone.openCanvas.websocket;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.data.redis.connection.Message;
-import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.listener.KeyExpirationEventMessageListener;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Component;
 
+import cauCapstone.openCanvas.websocket.chatroom.RemoveChatRoomService;
+import cauCapstone.openCanvas.websocket.chatroom.SubscribeRepository;
+
 // WebSocketEventListener가 저장한 3분 TTL키가 클라이언트가 재구독을 해서 지워진게아닌 만료됬을 때(= 재구독을 안했을 때)를 감지하는 리스너이다.
-// 
 @Slf4j
 @Component
 public class RedisKeyExpirationListener extends KeyExpirationEventMessageListener {
 
-    private final SubscribeRegistryService subscribeRegistryService;
-    private final RemoveChatRoomRepository chatRoomRepository;
+    private final SubscribeRepository subscribeRegistryService;
+    private final RemoveChatRoomService chatRoomRepository;
 
     public RedisKeyExpirationListener(RedisMessageListenerContainer listenerContainer,
-                                      SubscribeRegistryService subscribeRegistryService,
-                                      RemoveChatRoomRepository chatRoomRepository) {
+                                      SubscribeRepository subscribeRegistryService,
+                                      RemoveChatRoomService chatRoomRepository) {
         super(listenerContainer);
         this.subscribeRegistryService = subscribeRegistryService;
         this.chatRoomRepository = chatRoomRepository;

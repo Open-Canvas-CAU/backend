@@ -1,4 +1,4 @@
-package cauCapstone.openCanvas.websocket.snapshotdelta;
+package cauCapstone.openCanvas.websocket.snapshot;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,14 +15,12 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/snapshot")
 public class SnapshotController {
 
-    private final SnapshotRedisService snapshotService;
+    private final SnapshotService snapshotService;
 
+    /*
     @PostMapping
-    public ResponseEntity<Void> saveSnapshot(@RequestBody SnapshotRequest request) {
-    	
-        snapshotService.saveSnapshotToRedis(request);
-        
-        snapshotService.removeOldDeltas(request.getRoomId(), request.getTimestamp());
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Void> saveSnapshot(@RequestBody SnapshotEntity request) {
+    	return ;
     }
+    */
 }

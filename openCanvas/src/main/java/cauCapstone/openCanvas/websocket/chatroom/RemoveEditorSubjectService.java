@@ -1,4 +1,4 @@
-package cauCapstone.openCanvas.websocket;
+package cauCapstone.openCanvas.websocket.chatroom;
 
 import java.util.Set;
 
@@ -6,6 +6,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
 
+import cauCapstone.openCanvas.websocket.chatmessage.ChatMessage;
+import cauCapstone.openCanvas.websocket.chatmessage.RedisPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -14,10 +16,11 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Service
 public class RemoveEditorSubjectService {
-    private final RedisTemplate<String, String> redisTemplate;
     private static final String SESSION_PREFIX = "ws:subscribe:";
+	
+    private final RedisTemplate<String, String> redisTemplate;
 	private final RedisPublisher redisPublisher;
-	private final RemoveChatRoomRepository chatRoomRepository;
+	private final RemoveChatRoomService chatRoomRepository;
 	
     // 단순 disconnect상태가 아닌 문서편집자가 문서방을 나갈때 호출해야한다.
     // 유저들은 문서방이 닫혀도 SUSCRIBE 상태를 유지하기 때문에 유저들의 상태를 UNSUSCRIBE로 바꾸라는 메시지를 프론트에 보낸다.

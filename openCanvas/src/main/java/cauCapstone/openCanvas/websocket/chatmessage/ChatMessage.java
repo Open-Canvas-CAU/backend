@@ -1,4 +1,4 @@
-package cauCapstone.openCanvas.websocket;
+package cauCapstone.openCanvas.websocket.chatmessage;
 
 import java.util.Map;
 

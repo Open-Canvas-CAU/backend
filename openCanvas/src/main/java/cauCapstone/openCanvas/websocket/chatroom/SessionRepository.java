@@ -1,4 +1,4 @@
-package cauCapstone.openCanvas.websocket;
+package cauCapstone.openCanvas.websocket.chatroom;
 
 import java.time.Duration;
 
@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 // 얻은 세션 ID로 유저정보를 얻을 수 있다.
 @Service
 @RequiredArgsConstructor
-public class SessionRegistryService {
+public class SessionRepository {
 
     private final RedisTemplate<String, String> redisTemplate;
     private static final String SESSION_PREFIX = "ws:session:";
