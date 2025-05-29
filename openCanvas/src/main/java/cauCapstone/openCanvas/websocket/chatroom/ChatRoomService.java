@@ -7,12 +7,10 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Service;
 
-import cauCapstone.openCanvas.rdb.dto.WritingDto;
 import cauCapstone.openCanvas.websocket.chatmessage.RedisSubscriber;
 import lombok.RequiredArgsConstructor;
 
 //TODO: 문서방을 만들 때 원래 있던 문서를 가져오는 과정이 필요하다.
-//TODO: 문서방을 만들 때 동시적으로 여러 유저가 문서방을 만드는 것을 막는 락이 필요하다.
 @RequiredArgsConstructor
 @Service
 public class ChatRoomService {
@@ -46,5 +44,10 @@ public class ChatRoomService {
         return versionList.stream()
                 .map(String::valueOf)
                 .collect(Collectors.joining("."));
+    }
+    
+    
+    public ChatRoomRedisEntity findRoomById(String roomId) {
+    	return chatRoomRepository.findRoomById(roomId);
     }
 }

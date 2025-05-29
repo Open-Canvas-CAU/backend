@@ -53,7 +53,7 @@ public class ContentService {
 	    // 좋아요 갯수를 찾음.
 	    int likeNum = contentRepository.countLikesById(conWithComments.getId());
 	    
-	    // 유저가 좋아요 또는 싫어요를 눌렀는지 확인하는 메소드.
+	    // 유저 본인이 좋아요 또는 싫어요를 눌렀는지 확인하는 메소드.
 	    Optional<Like> like = likeRepository.findByUserIdAndContentId(user.getId(), conWithComments.getId());
 	    LikeType likeType = like.map((a) -> a.getLiketype()).orElse(null);
 
@@ -64,7 +64,7 @@ public class ContentService {
 	// ! 유저필요
     // 좋아요 또는 싫어요를 눌렀을때 토글하기 : 안눌렀던 것을 눌렀으면 기존에 눌렀던 것 찾아서 삭제후 안눌렀던거 추가
     @Transactional
-    public void toggleLike(String email, Long contentId, LikeType newLikeType) {
+    public Long toggleLike(String email, Long contentId, LikeType newLikeType) {
         User user = userRepository.findByEmail(email)
 	            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
     	
@@ -77,7 +77,7 @@ public class ContentService {
             // 1. 같은 타입을 또 누른 경우 → 삭제 (토글 취소)
             if (existingLike.getLiketype() == newLikeType) {
                 likeRepository.delete(existingLike);
-                return;
+                return existingLike.getContent().getCover().getId();
             }
 
             // 2. 다른 타입을 누른 경우 → 기존 삭제 후 새로 생성
@@ -87,9 +87,12 @@ public class ContentService {
         // 3. 아무것도 없거나 다른 거 눌렀던 경우 → 새로운 Like 저장
         Like newLike = new Like();
         newLike.setUser(userRepository.getReferenceById(user.getId()));
+        Content content = contentRepository.getReferenceById(contentId);
         newLike.setContent(contentRepository.getReferenceById(contentId));
         newLike.setLiketype(newLikeType);
 
         likeRepository.save(newLike);
+        
+        return content.getCover().getId();
     }
 }

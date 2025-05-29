@@ -38,7 +38,7 @@ public class Content {
 	private List<Comment> comments = new ArrayList<>();
 	
 	
-	// TODO: content 안의 글 내용을 트리구조로 만들어서 저장하기.
+	// content 안의 글 내용을 트리구조
 	@OneToMany(mappedBy = "content", cascade = CascadeType.REMOVE)
 	private List<Writing> writings = new ArrayList<>();
 	
@@ -54,7 +54,7 @@ public class Content {
 	private String title;
 	
 	public Content(Cover cover) {
-		this.view = 0;
+		this.view = 1;
 		this.cover = cover;
 		this.title = cover.getTitle();
 	}

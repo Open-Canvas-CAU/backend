@@ -53,6 +53,11 @@ public class WritingDto {
 		this.title = title;
 	}
 	
+	public WritingDto(String title) {
+		this.title = title;
+		
+	}
+	
 	// TODO: Transactional 붙이고 실제 FetchType.LAZY인 항목이 잘 전달되는지 테스트해보기.
 	public static WritingDto fromEntity(Writing writing) {
 		int parentSiblingIndex = writing.getParent().getSiblingIndex();

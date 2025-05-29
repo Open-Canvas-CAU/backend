@@ -1,14 +1,13 @@
 package cauCapstone.openCanvas.rdb.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import cauCapstone.openCanvas.rdb.dto.ContentDto;
-import cauCapstone.openCanvas.rdb.dto.ReportDto;
-import cauCapstone.openCanvas.rdb.dto.UserDto;
 import cauCapstone.openCanvas.rdb.dto.WritingDto;
 import cauCapstone.openCanvas.rdb.entity.Content;
 import cauCapstone.openCanvas.rdb.entity.Role;
@@ -19,7 +18,6 @@ import cauCapstone.openCanvas.rdb.repository.UserRepository;
 import cauCapstone.openCanvas.rdb.repository.WritingRepository;
 import cauCapstone.openCanvas.websocket.chatroom.ChatRoomRedisEntity;
 import cauCapstone.openCanvas.websocket.chatroom.ChatRoomRepository;
-import cauCapstone.openCanvas.websocket.chatroom.SubscribeRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -71,6 +69,8 @@ public class WritingService {
                 curSiblingIndex = (current.getParent() != null) ? current.getParent().getSiblingIndex() : -1;
     	}
     	
+        Collections.reverse(allWritingDtos);
+    	
     	return allWritingDtos;
     }
     
@@ -105,7 +105,10 @@ public class WritingService {
     // 현재유저의 dto와 지우고싶은 writingDto를 받음.
     // TODO: 글을 쓴 사람은 변경 하지 않았는데, 안보이게 하는 조치가 필요함.
     @Transactional
-    public void deleteByRoot(String email, WritingDto writingDto) {
+    public void deleteByRoot(String email, WritingDto writingDto) {  	
+    	User user = userRepository.findByEmail(email)
+    			.orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
+    	
     	Writing userWriting = writingRepository.findByUserNameAndTitle(email, writingDto.getTitle())
     	            .orElseThrow(() -> new IllegalArgumentException("유저가 쓴 writing을 찾을 수 없습니다."));
     	
@@ -116,6 +119,7 @@ public class WritingService {
                     .orElseThrow(() ->  new IllegalArgumentException("존재하지 않는 writing입니다."));
             
             delete.setBody("");
+            delete.setUser(user);	// 여기 동작하나 확인
             writingRepository.save(delete);
     	}else {
     		throw new IllegalArgumentException("유저가 루트가 아닙니다.");
@@ -123,6 +127,7 @@ public class WritingService {
     }
     
     // 글(content)의 모든 버전 가져오기
+    // w.depth, w.siblingIndex, w.time, u.email만 가져오게됨
     // TODO: contentTitle만으로 충분하긴한데 확인해보기.
     public List<WritingDto> getSimpleWriting(ContentDto contentDto){
     	 return writingRepository.findAllDtosByContentTitle(contentDto.getTitle());
@@ -144,13 +149,14 @@ public class WritingService {
                     .orElseThrow(() ->  new IllegalArgumentException("존재하지 않는 writing입니다."));
             
             delete.setBody("");
-            delete.setUser(user);
+            delete.setUser(user);	// 여기 동작하나 확인
             writingRepository.save(delete);
     	}else {
     		throw new IllegalArgumentException("유저가 어드민이 아닙니다.");
     	}
     }
     
+    // TODO: 여기 컨트롤러로써야함.
     // 문서방에 들어가는 유저가(구독하는 유저) roomId를 받고 보여줘야하는 writingDto 리턴함.
     // 글을 ChatRoomRedisEntity에 저장된 version이 글을 쓰려고 하는 Writing의 version이기 때문에 그것의 부모의 글부터 가져와야한다.
     public List<WritingDto> getWritingsWithRoomId(String roomId){
@@ -177,6 +183,8 @@ public class WritingService {
                 curDepth = curDepth - 1;
                 curSiblingIndex = (current.getParent() != null) ? current.getParent().getSiblingIndex() : -1;
     	}
+    	
+    	Collections.reverse(allWritingDtos);
     	
     	return allWritingDtos;
     	
