@@ -1,5 +1,6 @@
 package cauCapstone.openCanvas.websocket;
 
+
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.data.redis.connection.Message;
@@ -8,46 +9,64 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Component;
 
 import cauCapstone.openCanvas.websocket.chatroom.RemoveChatRoomService;
+import cauCapstone.openCanvas.websocket.chatroom.RemoveEditorService;
 import cauCapstone.openCanvas.websocket.chatroom.SubscribeRepository;
+import cauCapstone.openCanvas.websocket.snapshot.SnapshotService;
 
-// WebSocketEventListener가 저장한 3분 TTL키가 클라이언트가 재구독을 해서 지워진게아닌 만료됬을 때(= 재구독을 안했을 때)를 감지하는 리스너이다.
+// WebSocketEventListener가 문서방을 나갔다가 3분안에 안들어온 유저가 있으면 실행한다.
 @Slf4j
 @Component
 public class RedisKeyExpirationListener extends KeyExpirationEventMessageListener {
 
-    private final SubscribeRepository subscribeRegistryService;
-    private final RemoveChatRoomService chatRoomRepository;
+    private final SubscribeRepository subscribeRepository;
+    private final RemoveEditorService removeEditorService;
+    private final SnapshotService snapshotService;
+    private final RemoveChatRoomService removeChatRoomService;
 
     public RedisKeyExpirationListener(RedisMessageListenerContainer listenerContainer,
-                                      SubscribeRepository subscribeRegistryService,
-                                      RemoveChatRoomService chatRoomRepository) {
+                                      SubscribeRepository subscribeRepository,
+                                      RemoveEditorService removeEditorService,
+                                      SnapshotService snapshotService,
+                                      RemoveChatRoomService removeChatRoomService) {
         super(listenerContainer);
-        this.subscribeRegistryService = subscribeRegistryService;
-        this.chatRoomRepository = chatRoomRepository;
+        this.subscribeRepository = subscribeRepository;
+        this.removeEditorService = removeEditorService;
+        this.snapshotService = snapshotService;
+        this.removeChatRoomService = removeChatRoomService;
     }
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
         String expiredKey = message.toString();
 
-        if (expiredKey.startsWith("disconnect:")) {
-            String[] parts = expiredKey.split(":");
-            if (parts.length < 3) return;
+        if (!expiredKey.startsWith("disconnect:")) return;
 
-            String roomId = parts[1];
-            String subject = parts[2];
+        String[] parts = expiredKey.split(":");
+        if (parts.length < 3) return;
 
-            String editorSubject = subscribeRegistryService.getEditorSubjectByRoomId(roomId);
-            
-            // 연결을 끊은 사람이 그 방의 편집자일 때
-            if (subject.equals(editorSubject)) {
-                chatRoomRepository.removeChatRoom(roomId);
-                
-            } 
-            // 연결을 끊은 사람이 편집자가 아닐 때
-            else {
-                subscribeRegistryService.registerEditorSubject(roomId, editorSubject);
-            }
+        String roomId = parts[1];
+        String subject = parts[2];
+
+        String editorSubject = subscribeRepository.getEditorSubjectByRoomId(roomId);
+        if (editorSubject == null) {
+            log.warn("editorSubject 정보 없음. roomId: {}", roomId);
+            return;
+        }
+
+        if (subject.equals(editorSubject)) {
+            log.info("편집자 {}가 3분간 재연결하지 않아 문서방 {} 제거 시작", subject, roomId);
+
+            // 1. ROOMOUT + 상태 제거
+            removeEditorService.removeEditorSubject(subject);
+
+            // 2. 스냅샷 DB 저장
+            snapshotService.saveSnapshotToDB(roomId);
+
+            // 3. 문서방 제거
+            removeChatRoomService.removeChatRoom(roomId);
+
+        } else {
+            // 편집자가 아닌 경우, 아무것도 할 필요가 없음.
         }
     }
 }

@@ -1,5 +1,8 @@
 package cauCapstone.openCanvas.websocket.snapshot;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,10 +42,14 @@ public class SnapshotService {
         if (snapshot == null) {
             throw new IllegalStateException("스냅샷이 존재하지 않습니다: " + roomId);
         }
+        
+        LocalDateTime time = Instant.ofEpochMilli(snapshot.getTime())
+        	    .atZone(ZoneId.systemDefault())
+        	    .toLocalDateTime();
 
         // 4. WritingDto 생성
         WritingDto writingDto = new WritingDto(version.get(0), version.get(1), parentSiblingIndex, 
-        		snapshot.getBody(), snapshot.getTime(), room.getSubject(), room.getName());
+        		snapshot.getBody(), time, room.getSubject(), room.getName());
 
         // 5. Writing 저장 로직 위임
         writingService.saveWriting(writingDto);

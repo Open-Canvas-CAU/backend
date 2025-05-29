@@ -19,6 +19,7 @@ public class SubscribeRepository {
     private final RedisTemplate<String, String> redisTemplate;
     private static final String SESSION_PREFIX = "ws:subscribe:";
     private static final String DISCONNECT_PREFIX = "disconnect";
+    private static final String LOCK_PREFIX = " lock:document:";
     
     // ChatRoomRepository에서 문서방을 만들 때, roomId, editorSubject를 같이 저장해둔다.
     public void registerEditorSubject(String roomId, String subject) {
@@ -64,6 +65,11 @@ public class SubscribeRepository {
         redisTemplate.opsForSet().remove(key2, subject);
     }
     
+    public void removeEditorSubjectKey(String roomId) {
+        String key = SESSION_PREFIX + "room:" + roomId + ":editorSubject";
+        redisTemplate.delete(key);
+    }
+    
     // disconnect(3분 ttl) 관련 키
     // disconnect 상태 기록 (3분 TTL)
     // 3분동안 안들어오면(DISCONNECT) 기본적으로 의도적으로 나갔다고 판단하고, 
@@ -85,4 +91,33 @@ public class SubscribeRepository {
         String key = getDisconnectKey(roomId, subject);
         redisTemplate.delete(key);
     }
+    
+    // 락 관련 키
+    // 편집자가 처음 메시지를 보내면 락이 걸리게 되있다.
+    
+ // 락 키 생성 메소드
+    private String getLockKey(String roomId) {
+        return LOCK_PREFIX + roomId;
+    }
+
+    // 락 소유자 조회
+    public String getLockOwner(String roomId) {
+        return redisTemplate.opsForValue().get(getLockKey(roomId));
+    }
+
+    // 락 설정 (편집자 subject 기준)
+    public void setLock(String roomId, String subject) {
+        redisTemplate.opsForValue().set(getLockKey(roomId), subject, Duration.ofMinutes(30));
+    }
+
+    // 락 TTL 갱신
+    public void extendLock(String roomId) {
+        redisTemplate.expire(getLockKey(roomId), Duration.ofMinutes(10));
+    }
+
+    // 락 삭제
+    public void removeLockKey(String roomId) {
+        redisTemplate.delete(getLockKey(roomId));
+    }
+    
 }

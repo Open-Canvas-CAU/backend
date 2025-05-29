@@ -14,7 +14,9 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import cauCapstone.openCanvas.websocket.chatmessage.RedisSubscriber;
 import cauCapstone.openCanvas.websocket.chatroom.RemoveChatRoomService;
+import cauCapstone.openCanvas.websocket.chatroom.RemoveEditorService;
 import cauCapstone.openCanvas.websocket.chatroom.SubscribeRepository;
+import cauCapstone.openCanvas.websocket.snapshot.SnapshotService;
 
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 
@@ -67,8 +69,11 @@ public class RedisConfig {
 	@Bean
 	public RedisKeyExpirationListener redisKeyExpirationListener(
 	        RedisMessageListenerContainer container,
-	        SubscribeRepository subscribeRegistryService,
-	        RemoveChatRoomService chatRoomRepository) {
-	    return new RedisKeyExpirationListener(container, subscribeRegistryService, chatRoomRepository);
+            SubscribeRepository subscribeRepository,
+            RemoveEditorService removeEditorService,
+            SnapshotService snapshotService,
+            RemoveChatRoomService removeChatRoomService) {
+	    return new RedisKeyExpirationListener(container, subscribeRepository,removeEditorService, 
+	    		snapshotService,removeChatRoomService);
 	}
 }

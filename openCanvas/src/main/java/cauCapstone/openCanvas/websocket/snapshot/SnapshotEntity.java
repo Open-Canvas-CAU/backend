@@ -18,9 +18,9 @@ public class SnapshotEntity implements Serializable {
     
     private String roomId;
     private String body;
-    private LocalDateTime time;
+    private long time;
     
-    public static SnapshotEntity makeSnapshot(String roomId, String body, LocalDateTime time) {
+    public static SnapshotEntity makeSnapshot(String roomId, String body, long time) {
         SnapshotEntity snapshot = new SnapshotEntity();
         snapshot.setRoomId(roomId);
         snapshot.setBody(body);
