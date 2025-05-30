@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import cauCapstone.openCanvas.rdb.entity.Content;
 import cauCapstone.openCanvas.rdb.entity.User;
 import cauCapstone.openCanvas.rdb.entity.Writing;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,18 +16,27 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "글조각(이어쓰기 단위)이 필요할때 넘기는 용도로 쓰임,"
+		+ "요청할때는 대부분 depth, siblingIndex, title으로 간단하게 정보를 요청함."
+		+ "글 조각의 내용이 필요없을 때는 depth, siblingIndex, title, username로 간략하게 정보를 응답 받는 경우가 있음,"
+		+ "원래는 depth, siblingIndex, parentIndex, body, tiem, username, title까지 응답받을 수 있음.")
 public class WritingDto {
+	@Schema(description = "현재 몇번째로 이어쓰고 있나")
 	private int depth;
+	@Schema(description = "현재 이어쓰기 번째에서 몇번째 글인가 (최대2)")
 	private int siblingIndex;
-	
+	@Schema (description = "부모는 몇번째 글인가(최대2)")
 	private int parentSiblingIndex;
+	@Schema (description = "글내용")
 	private String body;
+	@Schema (description = "타임스탬프")
 	private LocalDateTime time;
-	
+	@Schema (description = "이메일")
 	private String username;	// 이메일로 바꿔보내도 상관없음, 백엔드에서 응답용
+	@Schema (description = "전체 글의 제목")
 	private String title;	//content에서 꺼내오는 제목, 백엔드에서 응답용
-	
 	private Long userId;	// TODO: 토큰화, 프론트에서 요청용
+	@Schema(description = "전체 글의 id, 제목으로 대체될 때는 안씀")
 	private Long contentId;	// 프론트에서 요청용
 	
 	public WritingDto(int depth, int siblingIndex, int parentSiblingIndex, String body, LocalDateTime time, 

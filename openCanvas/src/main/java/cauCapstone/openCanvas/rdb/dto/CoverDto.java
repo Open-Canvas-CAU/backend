@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 
 import cauCapstone.openCanvas.rdb.entity.Cover;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,10 +14,16 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "표지 정보에 관한 dto 응답용,"
+		+ "제목 이미지 타임스탬프 조회수 좋아요개수 응답함")
 public class CoverDto {
+	@Schema(description = "글 제목")
 	private String title;
+	@Schema(description = "이미지url")
 	private String coverImageUrl;
-	private ContentDto contentDto;	// 여기서 조회수를 가져옴.
+	@Schema(description = "전체 글 관련 dto")
+	private ContentDto contentDto;
+	@Schema(description = "타임스탬프")
 	private LocalDateTime time;
 	
 	// 조회수

@@ -7,6 +7,7 @@ import cauCapstone.openCanvas.rdb.entity.Like;
 import cauCapstone.openCanvas.rdb.entity.Role;
 import cauCapstone.openCanvas.rdb.entity.User;
 import cauCapstone.openCanvas.rdb.entity.Writing;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,11 +17,18 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "유저정보 dto, 요청할때는 안씀(토큰씀) 응답할때 넘기는용도")
 public class UserDto {
+	
+	@Schema(description = "인조키(거의 필수 아님)")
 	private Long id;
+	@Schema (description = "현재는 여기다가 이메일을 중복으로 담음")
 	private String nickname;
+	@Schema (description = "이메일")
 	private String email;
+	@Schema (description = "글씨 색상")
 	private String color;
+	@Schema (description = "역할(ADMIN 빼고 다 USER)")
 	private Role role;
 	
 	private List<LikeDto> likeDtos = new ArrayList<>();

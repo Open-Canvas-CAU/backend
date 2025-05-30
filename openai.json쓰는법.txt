@@ -1,0 +1,2 @@
+https://editor.swagger.io/ 
+-> file탭 -> import file 누르고 openai.json 고르기

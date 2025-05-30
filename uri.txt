@@ -1,0 +1,9 @@
+<엑세스토큰, 리프레시토큰이 실리는 uri>
+http://localhost:8080/oauth2/authorization/google?mode=login&redirect_uri=http://localhost:8080
+
+<h2 console>
+ h2 -> jwt가 만료되기전에 빠르게 해야함 다른동작 -> access토큰으로할수있어서 상관없음
+http://localhost:8080/h2-console/
+
+https://editor.swagger.io/ 
+-> file탭 -> import file 누르고 openai.json 고르기

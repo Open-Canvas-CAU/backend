@@ -18,6 +18,7 @@ public class LikeService {
 	private final LikeRepository likeRepository;
 	private final UserRepository userRepository;
 	
+	
 	// !유저필요
 	// 유저가 좋아요 했던 cover 목록을 가져옴.
 	public List<CoverDto> getLikeCover(String email){
