@@ -25,9 +25,9 @@ public class WritingController {
     @PostMapping("/check")
     @Operation(summary = "글 작성 가능 여부 확인", description = "현재 depth의 하위에 글을 더 작성할 수 있는지 확인하고, 가능한 siblingIndex를 반환합니다.")
     public ResponseEntity<?> checkWriting(
-            @RequestParam int parentDepth,
-            @RequestParam int parentSiblingIndex,
-            @RequestParam String title) {
+            @RequestParam(name = "parentDepth") int parentDepth,
+            @RequestParam(name = "parentSiblingIndex") int parentSiblingIndex,
+            @RequestParam(name = "title") String title) {
         try {
             int nextSiblingIndex = writingService.checkWriting(parentDepth, parentSiblingIndex, title);
             return ResponseEntity.ok(nextSiblingIndex);
@@ -59,9 +59,9 @@ public class WritingController {
     @PostMapping("/simple")
     @Operation(summary = "content의 Writing 전체 간략 조회", description = "해당 content의 모든 Writing을 단순히 조회합니다,"
     		+ " depth, siblingIndex, time, email(유저정보)만 가져오게된다. 버전과 시간 유저정보를 가져오는 셈이다,"
-    		+ "contentDto를 받는데 title만(제목) 포함되있으면 된다, List<WritingDto> 를 리턴한다.")
-    public ResponseEntity<List<WritingDto>> getSimple(@RequestBody ContentDto contentDto) {
-        return ResponseEntity.ok(writingService.getSimpleWriting(contentDto));
+    		+ "title만(제목)이 필요하다., List<WritingDto> 를 리턴한다.")
+    public ResponseEntity<List<WritingDto>> getSimple(@RequestParam(name = "title")String title) {
+        return ResponseEntity.ok(writingService.getSimpleWriting(title));
     }
 
     @DeleteMapping("/delete/root")

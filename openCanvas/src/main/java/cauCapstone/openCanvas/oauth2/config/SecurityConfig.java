@@ -52,10 +52,11 @@ public class SecurityConfig {
             // TODO: h2-console 관련은 추후에 지운다, permitAll 전체 열람 가능하다. 로그인 없이도 열람가능한 url은 다시 설정해야한다.
             // 나머지 기능은 권한이 있어야한다. 로그인 없이도 열람가능한 url은 다시 설정해야한다.
             .authorizeHttpRequests((requests) -> requests
-            	    .requestMatchers("/**").permitAll()	// 임시 CROS 허용
+            	    .requestMatchers("/**").permitAll()	// TODO: 여기 주석처리 안하면 uri 다 풀림. 임시 CROS 허용
+                    .requestMatchers("/login/**", "/auth/**", "/oauth2/**").permitAll()
+                    .requestMatchers(antMatcher("/h2-console/**")).permitAll()	// TODO: 여기 주석처리 나중엔 해야함. h2 임시허용
                     .requestMatchers(antMatcher("/api/admin/**")).hasRole("ADMIN")
                     .requestMatchers(antMatcher("/api/user/**")).hasRole("USER")
-                    .requestMatchers(antMatcher("/h2-console/**")).permitAll()
                     .anyRequest().authenticated()
             )
             //서버 stateless 설정

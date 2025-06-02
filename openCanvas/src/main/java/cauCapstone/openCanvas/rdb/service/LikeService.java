@@ -33,7 +33,7 @@ public class LikeService {
 		}
 		
 		List<CoverDto> coverDtos = likes.stream()
-				.map(like -> CoverDto.fromEntity(like.getContent().getCover()))
+				.map(like -> CoverDto.fromEntity(like.getContent().getCover(), like.getContent().getId()))
 				.distinct()
 				.toList();
 		

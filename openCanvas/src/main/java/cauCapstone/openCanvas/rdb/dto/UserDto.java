@@ -62,7 +62,11 @@ public class UserDto {
     			.map((like) -> LikeDto.fromEntity(like)).toList();
     	
     	List<WritingDto> writingDtos = user.getWritings().stream()
-    			.map((writing) -> WritingDto.fromEntity(writing)).toList();
+    			.map(writing -> {
+    				String title = writing.getContent().getCover().getTitle(); // 또는 content.getTitle() 커버 방식에 맞게
+    				return WritingDto.fromEntity(writing, title);
+    			})
+    			.toList();
     	
     	return new UserDto(user.getId(), user.getNickname(), user.getEmail(), user.getColor(), user.getRole(), likeDtos, writingDtos);
     }

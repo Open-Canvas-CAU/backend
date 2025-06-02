@@ -77,9 +77,12 @@ public class ContentDto {
     			.map((comment) -> ResCommentDto.fromEntity(comment)).toList();
     	
     	List<WritingDto> writingDtos = content.getWritings().stream()
-    			.map((writing) -> WritingDto.fromEntity(writing)).toList();
+    			.map(writing -> {
+    				String title = writing.getContent().getCover().getTitle(); // 또는 content.getTitle() 커버 방식에 맞게
+    				return WritingDto.fromEntity(writing, title);
+    			}).toList();
 		
-		CoverDto coverDto = CoverDto.fromEntity(content.getCover());
+		CoverDto coverDto = CoverDto.fromEntity(content.getCover(), content.getId());
 		
 		String title = coverDto.getTitle();
     	
@@ -91,12 +94,15 @@ public class ContentDto {
     			.map((comment) -> ResCommentDto.fromEntity(comment)).toList();
     	
     	List<WritingDto> writingDtos = content.getWritings().stream()
-    			.map((writing) -> WritingDto.fromEntity(writing)).toList();
+    			.map(writing -> {
+    				String title = writing.getContent().getCover().getTitle(); // 또는 content.getTitle() 커버 방식에 맞게
+    				return WritingDto.fromEntity(writing, title);
+    			}).toList();
 		
     	List<LikeDto> likeDtos = content.getLikes().stream()
     			.map((like) -> LikeDto.fromEntity(like)).toList();
 		
-		CoverDto coverDto = CoverDto.fromEntity(content.getCover());
+		CoverDto coverDto = CoverDto.fromEntity(content.getCover(), content.getId());
 		
 		return new ContentDto(content.getId(), content.getView(), commentDtos, writingDtos, likeDtos, coverDto);
 	}

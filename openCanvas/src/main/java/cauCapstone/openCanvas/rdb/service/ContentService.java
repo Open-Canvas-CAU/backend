@@ -20,10 +20,10 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class ContentService {
-	private ContentRepository contentRepository;
-	private CoverRepository coverRepository;
-	private LikeRepository likeRepository;
-	private UserRepository userRepository;
+	private final ContentRepository contentRepository;
+	private final CoverRepository coverRepository;
+	private final LikeRepository likeRepository;
+	private final UserRepository userRepository;
 	
 	// ! 유저필요
 	// coverId를 받아서 Content를 리턴하는 메소드, Content가 없으면 새로 저장한다.

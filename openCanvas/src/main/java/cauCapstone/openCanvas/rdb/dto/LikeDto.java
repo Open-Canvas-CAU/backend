@@ -18,18 +18,18 @@ import lombok.Setter;
 		+ "유저가 좋아요를 누른 글을 가져오는데 쓰임, 응답용"
 		+ "좋아요 싫어요 둘다 있지만 좋아요한 글만 가져옴")
 public class LikeDto {
-	@Schema(description = "전체 글 dto")
-	private ContentDto contentDto;
-	@Schema(description = "유저 dto")
-	private UserDto userDto;
+    @Schema(description = "좋아요한 글 제목")
+    private String contentTitle;
+	@Schema(description = "좋아요 누른 이메일")
+	private String email;
 	@Schema(description = "enum LIKE, DISLIKE 두가지있음")
 	private LikeType likeType;
 	
 	public static LikeDto fromEntity(Like like) {
-		ContentDto contentDto = ContentDto.fromEntity(like.getContent());
+        String title = like.getContent().getTitle();  // 또는 content.getTitle()
 		
-		UserDto userDto = UserDto.fromEntity(like.getUser());
+		String email = like.getUser().getEmail();
     	
-    	return new LikeDto(contentDto, userDto, like.getLiketype());
+    	return new LikeDto(title, email, like.getLiketype());
 	}
 }

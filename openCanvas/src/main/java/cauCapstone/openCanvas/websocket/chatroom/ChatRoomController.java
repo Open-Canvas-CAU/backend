@@ -42,15 +42,15 @@ public class ChatRoomController {
         String version;
         
         if(writingDto.getDepth() == 0) {
-        	version = "1.1.0";
+        	version = "1.1";
         }else {
             int siblingIndex = writingService.checkWriting(
             		writingDto.getDepth(),
-            		writingDto.getParentSiblingIndex(),
+            		writingDto.getSiblingIndex(),
             		writingDto.getTitle()
             );
 
-            version = (writingDto.getDepth() + 1) + "." + siblingIndex + "." + writingDto.getParentSiblingIndex();
+            version = (writingDto.getDepth() + 1) + "." + siblingIndex + "." + writingDto.getSiblingIndex();
         }
 
         ChatRoomRedisEntity chatRoom = chatRoomService.createChatRoom(

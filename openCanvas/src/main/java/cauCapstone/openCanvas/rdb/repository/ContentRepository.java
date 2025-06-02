@@ -18,7 +18,7 @@ public interface ContentRepository extends JpaRepository<Content, Long>{
 	Content findByIdWithComments(@Param("id") Long id);
 	
     // 좋아요 개수 구하기.
-    @Query("SELECT COUNT(l) FROM Like l WHERE l.content.id = :contentId")
+    @Query("SELECT COUNT(l) FROM Like l WHERE l.content.id = :contentId AND l.liketype = 'LIKE'")
     int countLikesById(@Param("contentId") Long id);
     
     Optional<Content> findByTitle(String title);

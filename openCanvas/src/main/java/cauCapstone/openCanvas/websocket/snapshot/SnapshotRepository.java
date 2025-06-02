@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 @Repository
 public class SnapshotRepository {
 
-    private static final String SNAPSHOT_KEY = "SNAPSHOT";
+    private static final String SNAPSHOT_KEY = "SNAPSHOT:";
 
     private final RedisTemplate<String, Object> redisTemplate;
     private HashOperations<String, String, SnapshotEntity> hashOps;
@@ -25,23 +25,29 @@ public class SnapshotRepository {
         hashOps = redisTemplate.opsForHash();
     }
 
-    // 스냅샷 저장
+    // 블록 하나 저장: "SNAPSHOT:{roomId}" -> num -> snapshot
     public void saveSnapshot(String roomId, SnapshotEntity snapshot) {
-        hashOps.put(SNAPSHOT_KEY, roomId, snapshot);
+        hashOps.put(SNAPSHOT_KEY + roomId, snapshot.getNum(), snapshot);
+    }
+    
+    // 블록 하나 조회
+    public SnapshotEntity getSnapshot(String roomId, String num) {
+        return hashOps.get(SNAPSHOT_KEY + roomId, num);
     }
 
-    // 스냅샷 조회
-    public SnapshotEntity getSnapshot(String roomId) {
-        return hashOps.get(SNAPSHOT_KEY, roomId);
+    // 해당 문서방(roomId)의 전체 블록 조회
+    public List<SnapshotEntity> getAllSnapshots(String roomId) {
+        return hashOps.values(SNAPSHOT_KEY + roomId);
     }
 
-    // 스냅샷 삭제
-    public void deleteSnapshot(String roomId) {
-        hashOps.delete(SNAPSHOT_KEY, roomId);
+    // 특정 블록 삭제
+    public void deleteSnapshot(String roomId, String num) {
+        hashOps.delete(SNAPSHOT_KEY + roomId, num);
     }
 
-    // 전체 스냅샷 조회 (필요할 경우)
-    public List<SnapshotEntity> findAllSnapshots() {
-        return hashOps.values(SNAPSHOT_KEY);
+
+    // 문서방의 모든 스냅샷 삭제
+    public void deleteAllSnapshots(String roomId) {
+        redisTemplate.delete(SNAPSHOT_KEY + roomId);
     }
 }

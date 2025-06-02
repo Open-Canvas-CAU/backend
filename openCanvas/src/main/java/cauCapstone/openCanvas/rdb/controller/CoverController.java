@@ -24,7 +24,7 @@ public class CoverController {
     		+ "누르면 나오는 내용물은 content라고 칭한다, "
     		+ "CoverDto가 필요하다, CoverDto를 반환한다.")
     public ResponseEntity<CoverDto> createCover(@RequestBody CoverDto coverDto) {
-        return ResponseEntity.ok(CoverDto.fromEntity(coverService.makeCover(coverDto)));
+        return ResponseEntity.ok(CoverDto.fromEntity(coverService.makeCover(coverDto), null));
     }
 
     @GetMapping("/all")

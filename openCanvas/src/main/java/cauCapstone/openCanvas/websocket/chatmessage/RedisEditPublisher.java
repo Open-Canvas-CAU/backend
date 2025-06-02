@@ -72,7 +72,7 @@ public class RedisEditPublisher {
         	if(message.getMessage() != null) {
             	
             	SnapshotEntity snapshot = SnapshotEntity.makeSnapshot(message.getRoomId(), 
-            			message.getMessage(), message.getTimestamp());
+            			message.getMessage(), message.getNum(), message.getTimestamp());
             	
             	snapshotRepository.saveSnapshot(roomId, snapshot);
             	

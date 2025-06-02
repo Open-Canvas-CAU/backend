@@ -63,7 +63,7 @@ public class WritingService {
                     .findByDepthAndSiblingIndexAndContent_Title(curDepth, curSiblingIndex, title)
                     .orElseThrow(() ->  new IllegalArgumentException("존재하지 않는 writing입니다."));
                         
-                allWritingDtos.add(WritingDto.fromEntity(current));
+                allWritingDtos.add(WritingDto.fromEntity(current, title));
                 
                 curDepth = curDepth - 1;
                 curSiblingIndex = (current.getParent() != null) ? current.getParent().getSiblingIndex() : -1;
@@ -129,8 +129,8 @@ public class WritingService {
     // 글(content)의 모든 버전 가져오기
     // w.depth, w.siblingIndex, w.time, u.email만 가져오게됨
     // TODO: contentTitle만으로 충분하긴한데 확인해보기.
-    public List<WritingDto> getSimpleWriting(ContentDto contentDto){
-    	 return writingRepository.findAllDtosByContentTitle(contentDto.getTitle());
+    public List<WritingDto> getSimpleWriting(String title){
+    	 return writingRepository.findAllDtosByContentTitle(title);
     }
     
     // ! 유저필요
@@ -178,7 +178,7 @@ public class WritingService {
                     .findByDepthAndSiblingIndexAndContent_Title(curDepth, curSiblingIndex, title)
                     .orElseThrow(() ->  new IllegalArgumentException("존재하지 않는 writing입니다."));
                         
-                allWritingDtos.add(WritingDto.fromEntity(current));
+                allWritingDtos.add(WritingDto.fromEntity(current, title));
                 
                 curDepth = curDepth - 1;
                 curSiblingIndex = (current.getParent() != null) ? current.getParent().getSiblingIndex() : -1;

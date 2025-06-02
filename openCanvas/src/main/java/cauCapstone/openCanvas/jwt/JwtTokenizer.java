@@ -120,5 +120,14 @@ public class JwtTokenizer {
 	        log.warn("No refresh token found for subject(email): {}", subject);
 	    }
 	}
+	
+    
+    public Date createAccessTokenExpiration() {
+        return new Date(System.currentTimeMillis() + 1000 * 60 * 15); // 15분
+    }
+
+    public Date createRefreshTokenExpiration() {
+        return new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 7); // 7일
+    }
 }
 

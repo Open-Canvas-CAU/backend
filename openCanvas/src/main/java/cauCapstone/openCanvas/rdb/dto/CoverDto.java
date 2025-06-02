@@ -22,7 +22,7 @@ public class CoverDto {
 	@Schema(description = "이미지url")
 	private String coverImageUrl;
 	@Schema(description = "전체 글 관련 dto")
-	private ContentDto contentDto;
+	private Long contentId;
 	@Schema(description = "타임스탬프")
 	private LocalDateTime time;
 	
@@ -31,10 +31,10 @@ public class CoverDto {
 	// 좋아요 개수
 	private Long likeNum;	// TODO: 나중에 잘 안되면 (int) 해서 타입바꾸기.
 	
-	public CoverDto(String title, String coverImageUrl, ContentDto contentDto, LocalDateTime time) {
+	public CoverDto(String title, String coverImageUrl, Long contentId, LocalDateTime time) {
 		this.title = title;
 		this.coverImageUrl = coverImageUrl;
-		this.contentDto = contentDto;
+		this.contentId = contentId;
 		this.time = time;
 	}
 	
@@ -46,10 +46,9 @@ public class CoverDto {
 		this.likeNum = likeNum;
 	}
 	
-	public static CoverDto fromEntity(Cover cover) {
-		ContentDto contentDto = ContentDto.fromEntity(cover.getContent());
+	public static CoverDto fromEntity(Cover cover, Long contentId) {
 		
-		return new CoverDto(cover.getTitle(), cover.getCoverImageUrl(), contentDto, cover.getTime());
+		return new CoverDto(cover.getTitle(), cover.getCoverImageUrl(), contentId, cover.getTime());
 	}
 	
 	/*

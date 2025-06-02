@@ -51,7 +51,7 @@ public class ReportService {
         SimpleMailMessage message = new SimpleMailMessage();
 
         try {
-            message.setFrom("your_email@gmail.com");	// 여기고치기.
+            message.setFrom("loghelix223@gmail.com");	// 여기고치기.
             message.setTo(adminEmail);
             message.setSubject("[신고 접수] 새로운 신고가 도착했습니다.");
             message.setText("""

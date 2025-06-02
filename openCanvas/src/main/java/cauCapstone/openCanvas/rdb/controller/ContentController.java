@@ -38,8 +38,8 @@ public class ContentController {
     		+ "동일한 타입을 누르면 취소됩니다(좋아요 2번누르면취소),"
     		+ "contentId, likeType 필요함, contentDto 리턴함")
     public ResponseEntity<?> toggleLike(
-            @RequestParam Long contentId,
-            @RequestParam LikeType likeType) {
+            @RequestParam(name = "contentId") Long contentId,
+            @RequestParam(name = "likeType") LikeType likeType) {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {

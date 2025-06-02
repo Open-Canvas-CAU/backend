@@ -3,6 +3,7 @@ package cauCapstone.openCanvas.websocket.snapshot;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,27 +36,31 @@ public class SnapshotService {
         
         List<Integer> version = getIntVersion(room.getVersion());
         
-        int parentSiblingIndex = (version.size() > 2) ? version.get(2) : -1;
+        Integer parentSiblingIndex = (version.size() > 2) ? version.get(2) : null;
 
         // 2. 스냅샷 가져오기
-        SnapshotEntity snapshot = snapshotRepository.getSnapshot(roomId);
-        if (snapshot == null) {
+        List<SnapshotEntity> snapshots = snapshotRepository.getAllSnapshots(roomId);
+        if (snapshots == null || snapshots.isEmpty()) {
             throw new IllegalStateException("스냅샷이 존재하지 않습니다: " + roomId);
         }
         
-        LocalDateTime time = Instant.ofEpochMilli(snapshot.getTime())
-        	    .atZone(ZoneId.systemDefault())
-        	    .toLocalDateTime();
+        // 블록 번호 기준 정렬
+        snapshots.sort(Comparator.comparingInt(s -> Integer.parseInt(s.getNum())));
+        
+        // 하나로 이어붙이기
+        String fullBody = snapshots.stream().map(SnapshotEntity::getBody).collect(Collectors.joining());
+        
+        LocalDateTime time = LocalDateTime.now();
 
         // 4. WritingDto 생성
         WritingDto writingDto = new WritingDto(version.get(0), version.get(1), parentSiblingIndex, 
-        		snapshot.getBody(), time, room.getSubject(), room.getName());
+        		fullBody, time, room.getSubject(), room.getName());
 
         // 5. Writing 저장 로직 위임
         writingService.saveWriting(writingDto);
 
         // 6. 스냅샷 삭제 (선택)
-        snapshotRepository.deleteSnapshot(roomId);
+        snapshotRepository.deleteAllSnapshots(roomId); // 저장 후 전체 삭제
     }
     
     // String으로 되있던 버전을 List<Integer>로 리턴함.

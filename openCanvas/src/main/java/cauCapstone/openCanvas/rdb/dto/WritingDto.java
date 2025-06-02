@@ -26,7 +26,7 @@ public class WritingDto {
 	@Schema(description = "현재 이어쓰기 번째에서 몇번째 글인가 (최대2)")
 	private int siblingIndex;
 	@Schema (description = "부모는 몇번째 글인가(최대2)")
-	private int parentSiblingIndex;
+	private Integer parentSiblingIndex;
 	@Schema (description = "글내용")
 	private String body;
 	@Schema (description = "타임스탬프")
@@ -39,7 +39,7 @@ public class WritingDto {
 	@Schema(description = "전체 글의 id, 제목으로 대체될 때는 안씀")
 	private Long contentId;	// 프론트에서 요청용
 	
-	public WritingDto(int depth, int siblingIndex, int parentSiblingIndex, String body, LocalDateTime time, 
+	public WritingDto(int depth, int siblingIndex, Integer parentSiblingIndex, String body, LocalDateTime time, 
 			String username, String title) {
 		this.depth = depth;
 		this.siblingIndex = siblingIndex;
@@ -69,10 +69,17 @@ public class WritingDto {
 	}
 	
 	// TODO: Transactional 붙이고 실제 FetchType.LAZY인 항목이 잘 전달되는지 테스트해보기.
-	public static WritingDto fromEntity(Writing writing) {
-		int parentSiblingIndex = writing.getParent().getSiblingIndex();
-		String username = writing.getUser().getNickname();
-		String title = writing.getContent().getTitle();
+	public static WritingDto fromEntity(Writing writing, String title) {
+	    Integer parentSiblingIndex = null;
+
+	    if (writing.getDepth() > 1) {  // depth가 1이면 루트니까 부모 불필요
+	        Writing parent = writing.getParent();
+	        if (parent != null) {
+	            parentSiblingIndex = parent.getSiblingIndex();
+	        }
+	    }
+
+	    String username = writing.getUser().getNickname();
 	
 		return new WritingDto(writing.getDepth(), writing.getSiblingIndex(), parentSiblingIndex, writing.getBody(), 
 				writing.getTime(), username, title);
