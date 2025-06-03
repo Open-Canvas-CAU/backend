@@ -19,7 +19,7 @@ import lombok.Setter;
 @Schema(description = "글조각(이어쓰기 단위)이 필요할때 넘기는 용도로 쓰임,"
 		+ "요청할때는 대부분 depth, siblingIndex, title으로 간단하게 정보를 요청함."
 		+ "글 조각의 내용이 필요없을 때는 depth, siblingIndex, title, username로 간략하게 정보를 응답 받는 경우가 있음,"
-		+ "원래는 depth, siblingIndex, parentIndex, body, tiem, username, title까지 응답받을 수 있음.")
+		+ "원래는 depth, siblingIndex, parentIndex, body, tiem, username, title, color까지 응답받을 수 있음.")
 public class WritingDto {
 	@Schema(description = "현재 몇번째로 이어쓰고 있나")
 	private int depth;
@@ -38,6 +38,8 @@ public class WritingDto {
 	private Long userId;	// TODO: 토큰화, 프론트에서 요청용
 	@Schema(description = "전체 글의 id, 제목으로 대체될 때는 안씀")
 	private Long contentId;	// 프론트에서 요청용
+	@Schema(description = "유저의 색상")
+	private String color;
 	
 	public WritingDto(int depth, int siblingIndex, Integer parentSiblingIndex, String body, LocalDateTime time, 
 			String username, String title) {
@@ -48,6 +50,18 @@ public class WritingDto {
 		this.time = time;
 		this.username = username;
 		this.title = title;
+	}
+	
+	public WritingDto(int depth, int siblingIndex, Integer parentSiblingIndex, String body, LocalDateTime time, 
+			String username, String title, String color) {
+		this.depth = depth;
+		this.siblingIndex = siblingIndex;
+		this.parentSiblingIndex = parentSiblingIndex;
+		this.body = body;
+		this.time = time;
+		this.username = username;
+		this.title = title;
+		this.color = color;
 	}
 	
 	public WritingDto(int depth, int siblingIndex, LocalDateTime time, String username) {
@@ -80,9 +94,11 @@ public class WritingDto {
 	    }
 
 	    String username = writing.getUser().getNickname();
+	    
+	    String color = writing.getUser().getColor();
 	
 		return new WritingDto(writing.getDepth(), writing.getSiblingIndex(), parentSiblingIndex, writing.getBody(), 
-				writing.getTime(), username, title);
+				writing.getTime(), username, title, color);
 	}
 	
 	public Writing toEntity(User user, Content content, Writing parent) {

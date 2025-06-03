@@ -54,4 +54,8 @@ public class CoverService {
         	throw new IllegalArgumentException("유저가 어드민이 아닙니다.");
         }
     }
+    
+    public List<CoverDto> searchCoversByTitle(String keyword) {
+       return coverRepository.searchByTitleKeyword(keyword);
+    }
 }

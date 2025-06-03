@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import cauCapstone.openCanvas.websocket.chatmessage.ChatMessage;
 import cauCapstone.openCanvas.websocket.chatmessage.RedisPublisher;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -70,6 +71,7 @@ public class RemoveEditorService {
     	return null;
     }
     
+    @Schema(description = "프론트에서는 messageType.ROOMOUT인 메시지가 온다면 구독 해제, 웹소켓 연결을 끊으면 됩니다.")
     // messageType가 ROOMOUT인 메시지를 보내고 받은 유저는 문서방이 닫혔으므로 구독 해제, 웹소켓 연결을 끊어야함.
     public void sendROOMOUTmessage(Set<String> subjects, String roomId) {
     	if(subjects!=null) {

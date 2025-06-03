@@ -63,7 +63,11 @@ public class RedisKeyExpirationListener extends KeyExpirationEventMessageListene
             snapshotService.saveSnapshotToDB(roomId);
 
             // 3. 문서방 제거
-            removeChatRoomService.removeChatRoom(roomId);
+            // 메시지 전송 후 잠시 기다렸다가 리스너 제거
+            new Thread(() -> {
+                try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
+                removeChatRoomService.removeChatRoom(roomId);
+            }).start();
 
         } else {
             // 편집자가 아닌 경우, 아무것도 할 필요가 없음.
