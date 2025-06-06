@@ -1,15 +1,21 @@
 package cauCapstone.openCanvas.rdb.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
 import cauCapstone.openCanvas.rdb.dto.ContentDto;
+import cauCapstone.openCanvas.rdb.dto.ResCommentDto;
+import cauCapstone.openCanvas.rdb.entity.Comment;
+import cauCapstone.openCanvas.rdb.entity.CommentLike;
 import cauCapstone.openCanvas.rdb.entity.Content;
 import cauCapstone.openCanvas.rdb.entity.Cover;
 import cauCapstone.openCanvas.rdb.entity.Like;
 import cauCapstone.openCanvas.rdb.entity.LikeType;
 import cauCapstone.openCanvas.rdb.entity.User;
+import cauCapstone.openCanvas.rdb.repository.CommentLikeRepository;
+import cauCapstone.openCanvas.rdb.repository.CommentRepository;
 import cauCapstone.openCanvas.rdb.repository.ContentRepository;
 import cauCapstone.openCanvas.rdb.repository.CoverRepository;
 import cauCapstone.openCanvas.rdb.repository.LikeRepository;
@@ -24,6 +30,7 @@ public class ContentService {
 	private final CoverRepository coverRepository;
 	private final LikeRepository likeRepository;
 	private final UserRepository userRepository;
+	private final CommentLikeRepository commentLikeRepository;
 	
 	// ! 유저필요
 	// coverId를 받아서 Content를 리턴하는 메소드, Content가 없으면 새로 저장한다.
@@ -56,8 +63,25 @@ public class ContentService {
 	    // 유저 본인이 좋아요 또는 싫어요를 눌렀는지 확인하는 메소드.
 	    Optional<Like> like = likeRepository.findByUserIdAndContentId(user.getId(), conWithComments.getId());
 	    LikeType likeType = like.map((a) -> a.getLiketype()).orElse(null);
+	    
+	    
+	    List<ResCommentDto> commentDtos = conWithComments.getComments().stream()
+	    	    .map(comment -> {
+	    	        Long commentId = comment.getId();
 
-	    return ContentDto.fromEntityWithLike(conWithComments, likeNum, likeType);
+	    	        int comLikeNum = commentLikeRepository.countByCommentIdAndLikeType(commentId, LikeType.LIKE);
+	    	        int comDisLikeNum = commentLikeRepository.countByCommentIdAndLikeType(commentId, LikeType.DISLIKE);
+
+	    	        LikeType myType = commentLikeRepository.findByUserIdAndCommentId(user.getId(), commentId)
+	    	            .map(CommentLike::getLikeType)
+	    	            .orElse(null);
+	    	        
+	    	        return ResCommentDto.fromEntity(comment, comLikeNum, comDisLikeNum, myType);
+
+	    	    })
+	    	    .toList();
+
+	    return ContentDto.fromEntityWithLike(commentDtos, conWithComments, likeNum, likeType);
 	    
 	}
 	

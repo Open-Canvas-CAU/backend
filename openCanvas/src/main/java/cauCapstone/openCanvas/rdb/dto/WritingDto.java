@@ -19,7 +19,7 @@ import lombok.Setter;
 @Schema(description = "글조각(이어쓰기 단위)이 필요할때 넘기는 용도로 쓰임,"
 		+ "요청할때는 대부분 depth, siblingIndex, title으로 간단하게 정보를 요청함."
 		+ "글 조각의 내용이 필요없을 때는 depth, siblingIndex, title, username로 간략하게 정보를 응답 받는 경우가 있음,"
-		+ "원래는 depth, siblingIndex, parentIndex, body, tiem, username, title, color까지 응답받을 수 있음.")
+		+ "원래는 depth, siblingIndex, parentIndex, body, time, username, title, color까지 응답받을 수 있음.")
 public class WritingDto {
 	@Schema(description = "현재 몇번째로 이어쓰고 있나")
 	private int depth;

@@ -17,7 +17,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "유저정보 dto, 요청할때는 안씀(토큰씀) 응답할때 넘기는용도")
+@Schema(description = "유저정보 dto, 요청할때는 안씀(토큰씀) 응답할때 넘기는용도,"
+		+ "(현재 썼던 댓글은 따로 리턴안함.)")
 public class UserDto {
 	
 	@Schema(description = "인조키(거의 필수 아님)")

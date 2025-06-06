@@ -17,18 +17,18 @@ import lombok.Setter;
 @AllArgsConstructor
 @Schema(description = "댓글에 달린 좋아요, 응답용")
 public class CommentLikeDto {
-	@Schema(description = "댓글dto")
-	private ResCommentDto commentDto;
-	@Schema(description = "유저dto")
-	private UserDto userDto;
+	@Schema(description = "댓글id")
+	private Long commentId;
+	@Schema(description = "유저id")
+	private Long userId;
 	
 	@Schema(description = "내가 댓글에 좋아요눌렀는지 싫어요 눌렀는지")
 	private LikeType likeType;
 	
 	public static CommentLikeDto fromEntity(CommentLike commentLike) {
-		ResCommentDto commentDto = ResCommentDto.fromEntity(commentLike.getComment());
-		UserDto userDto = UserDto.fromEntity(commentLike.getUser());
+		Long commentId = commentLike.getComment().getId();
+		Long userId = commentLike.getUser().getId();
 		
-		return new CommentLikeDto(commentDto, userDto, commentLike.getLikeType());
+		return new CommentLikeDto(commentId, userId, commentLike.getLikeType());
 	}
 }

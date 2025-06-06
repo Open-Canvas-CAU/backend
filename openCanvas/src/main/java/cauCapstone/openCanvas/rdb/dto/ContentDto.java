@@ -72,9 +72,7 @@ public class ContentDto {
 		this.title = coverDto.getTitle();
 	}
 	
-	public static ContentDto fromEntityWithLike(Content content, int likeNum, LikeType likeType) {
-    	List<ResCommentDto> commentDtos = content.getComments().stream()
-    			.map((comment) -> ResCommentDto.fromEntity(comment)).toList();
+	public static ContentDto fromEntityWithLike(List<ResCommentDto> commentDtos, Content content, int likeNum, LikeType likeType) {
     	
     	List<WritingDto> writingDtos = content.getWritings().stream()
     			.map(writing -> {
@@ -89,21 +87,4 @@ public class ContentDto {
     	return new ContentDto(content.getId(), content.getView(), commentDtos, writingDtos, coverDto, likeNum, likeType, title);
 	}
 	
-	public static ContentDto fromEntity(Content content) {
-    	List<ResCommentDto> commentDtos = content.getComments().stream()
-    			.map((comment) -> ResCommentDto.fromEntity(comment)).toList();
-    	
-    	List<WritingDto> writingDtos = content.getWritings().stream()
-    			.map(writing -> {
-    				String title = writing.getContent().getCover().getTitle(); // 또는 content.getTitle() 커버 방식에 맞게
-    				return WritingDto.fromEntity(writing, title);
-    			}).toList();
-		
-    	List<LikeDto> likeDtos = content.getLikes().stream()
-    			.map((like) -> LikeDto.fromEntity(like)).toList();
-		
-		CoverDto coverDto = CoverDto.fromEntity(content.getCover(), content.getId());
-		
-		return new ContentDto(content.getId(), content.getView(), commentDtos, writingDtos, likeDtos, coverDto);
-	}
 }

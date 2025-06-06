@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import cauCapstone.openCanvas.rdb.entity.Comment;
+import cauCapstone.openCanvas.rdb.entity.CommentLike;
+import cauCapstone.openCanvas.rdb.entity.LikeType;
 
 public interface CommentRepository extends JpaRepository<Comment, Long>{
 	
@@ -20,4 +22,5 @@ public interface CommentRepository extends JpaRepository<Comment, Long>{
 	
 	// 글에(Content) 있는 댓글을 가져옴.
 	List<Comment> findByContentId(Long contetnId);
+	
 }

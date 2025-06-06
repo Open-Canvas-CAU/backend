@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import cauCapstone.openCanvas.rdb.dto.ReqCommentDto;
 import cauCapstone.openCanvas.rdb.dto.ResCommentDto;
+import cauCapstone.openCanvas.rdb.entity.LikeType;
 import cauCapstone.openCanvas.rdb.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -42,8 +43,14 @@ public class CommentController {
     @GetMapping("/by-content")
     @Operation(summary = "특정 글(content)의 댓글 조회", description = "글에 달린 댓글을 보여주기 위해 쓴다, contentId 필요함,"
     		+ "ResCommentDto(응답용 commentDto)로 반환한다")
-    public ResponseEntity<List<ResCommentDto>> getComments(@RequestParam(name = "contentId") Long contentId) {
-        return ResponseEntity.ok(commentService.getContentComments(contentId));
+    public ResponseEntity<?> getComments(@RequestParam(name = "contentId") Long contentId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인되지 않음");
+        }
+        String email = (String) auth.getPrincipal();
+    	
+        return ResponseEntity.ok(commentService.getContentComments(email, contentId));
     }
 
     @DeleteMapping("/delete")
@@ -59,5 +66,28 @@ public class CommentController {
         String email = (String) auth.getPrincipal();
         commentService.deleteComment(commentId, email, contentId);
         return ResponseEntity.ok("댓글 삭제 성공");
+    }
+    
+    @PostMapping("/like-toggle")
+    @Operation(
+        summary = "댓글 좋아요/싫어요 토글",
+        description = "사용자가 댓글에 대해 좋아요 또는 싫어요를 토글합니다. commentId(댓글아이디), likeType(유저가 좋아요를 눌렀는지,"
+        		+ "싫어요를 눌렀는지 알고 있어야한다)이 필요하다."
+        		+ "바뀐 commentDto를 리턴한다."
+    )
+    public ResponseEntity<?> toggleCommentLike(
+            @RequestParam(name = "commentId") Long commentId,
+            @RequestParam(name = "likeType") LikeType likeType) {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인되지 않음");
+        }
+
+        String email = (String) auth.getPrincipal();
+        Long resultCommentId = commentService.toggleLike(email, commentId, likeType);
+        ResCommentDto commentDto = commentService.getCommentById(resultCommentId, email);
+        
+        return ResponseEntity.ok(commentDto);
     }
 } 
