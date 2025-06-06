@@ -1,0 +1,11 @@
+fastapi==0.115.12
+uvicorn==0.34.3
+pydantic==2.11.4
+python-dotenv==1.1.0
+neo4j==5.28.1
+torch
+sentence-transformers==4.1.0
+scikit-learn==1.6.1
+numpy==1.26.3
+requests==2.32.3
+typing-extensions==4.12.2
