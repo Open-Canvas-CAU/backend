@@ -176,7 +176,7 @@ class Database():
         # 1차 해당 작품을 본 유저들이 많이 본 다른 작품
         #
         # 1) Co-activity + 태그 겹침 제곱 가중치 (shared_tags^2 × tagW)
-        # 2) 동일 태그 기반 조회 + 좋아요 가중치 
+        # 2) 동일 태그 기반 조회 + 좋아요 가중치
         with self.driver.session() as session:
             co_results = session.run(
                 """
@@ -243,7 +243,6 @@ class Database():
 
         return res
 
-    
     def recommend_by_user(self, user_id: int, top_n: int, user_limit: int, viewW: float, likeW: float):
         res = []
 
@@ -262,7 +261,8 @@ class Database():
                 uid=user_id
             )
             record = exclude_ids.single()
-            seen_ids = record["seenIds"] if record and record["seenIds"] is not None else []
+            seen_ids = record["seenIds"] if record and record["seenIds"] is not None else [
+            ]
 
             sim_records = session.run(
                 """
@@ -301,7 +301,8 @@ class Database():
                 )
                 for rec in viewed_recs:
                     iid = int(rec["id"])
-                    item_scores[iid] = item_scores.get(iid, 0.0) + sim_score * viewW
+                    item_scores[iid] = item_scores.get(
+                        iid, 0.0) + sim_score * viewW
 
                 liked_recs = session.run(
                     """
@@ -314,12 +315,12 @@ class Database():
                 )
                 for rec in liked_recs:
                     iid = int(rec["id"])
-                    item_scores[iid] = item_scores.get(iid, 0.0) + sim_score * likeW
+                    item_scores[iid] = item_scores.get(
+                        iid, 0.0) + sim_score * likeW
 
         ranked = sorted(item_scores.items(), key=lambda x: x[1], reverse=True)
         res = [iid for iid, _ in ranked[:top_n]]
 
-        
         # 2차 (전체 인기 작품)
         #
         # 1) 1차 추천 결과가 부족하면 전체 작품에서 인기 작품 추천

@@ -30,7 +30,7 @@ async def lifespan(app: FastAPI):
     # start
     db = Database(config.NEO4J_URI, config.NEO4J_USER, config.NEO4J_PASSWORD)
     embedder = Embedder(config.EMBEDDING_MODEL_NAME)
-    
+
     # run
     yield
 

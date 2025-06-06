@@ -1,0 +1,393 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Recommendation API",
+    "version": "1.0.0",
+    "description": "API 문서: 사용자, 태그, 아이템 CRUD 및 아이템/유저 기반 추천 기능을 제공합니다."
+  },
+  "paths": {
+    "/user/{user_id}": {
+      "post": {
+        "summary": "유저 생성",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "생성할 유저의 ID"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "유저가 성공적으로 생성되었거나 이미 존재합니다."
+          }
+        }
+      },
+      "delete": {
+        "summary": "유저 삭제",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "삭제할 유저의 ID"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "유저 및 관련된 모든 관계가 성공적으로 삭제되었습니다."
+          }
+        }
+      }
+    },
+    "/tag/{tag_id}": {
+      "post": {
+        "summary": "태그 생성",
+        "parameters": [
+          {
+            "name": "tag_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "생성할 태그의 ID"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "태그가 성공적으로 생성되었거나 이미 존재합니다."
+          }
+        }
+      },
+      "delete": {
+        "summary": "태그 삭제",
+        "parameters": [
+          {
+            "name": "tag_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "삭제할 태그의 ID"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "태그 및 관련된 모든 관계가 성공적으로 삭제되었습니다."
+          }
+        }
+      }
+    },
+    "/item": {
+      "post": {
+        "summary": "아이템 생성",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ItemCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "아이템이 성공적으로 생성되었습니다."
+          }
+        }
+      }
+    },
+    "/item/{item_id}": {
+      "delete": {
+        "summary": "아이템 삭제",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "삭제할 아이템의 ID"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "아이템 및 관련된 모든 관계가 성공적으로 삭제되었습니다."
+          }
+        }
+      }
+    },
+    "/user/{user_id}/view/{item_id}": {
+      "post": {
+        "summary": "유저 뷰 생성",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "뷰를 생성할 유저의 ID"
+          },
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "뷰를 생성할 아이템의 ID"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "뷰 관계가 성공적으로 생성되었습니다."
+          }
+        }
+      },
+      "delete": {
+        "summary": "유저 뷰 삭제",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "뷰를 삭제할 유저의 ID"
+          },
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "뷰를 삭제할 아이템의 ID"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "뷰 관계가 성공적으로 삭제되었습니다."
+          }
+        }
+      }
+    },
+    "/user/{user_id}/like/{item_id}": {
+      "post": {
+        "summary": "유저 좋아요 생성",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "좋아요를 생성할 유저의 ID"
+          },
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "좋아요를 생성할 아이템의 ID"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "좋아요 관계가 성공적으로 생성되었습니다."
+          }
+        }
+      },
+      "delete": {
+        "summary": "유저 좋아요 삭제",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "좋아요를 삭제할 유저의 ID"
+          },
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "좋아요를 삭제할 아이템의 ID"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "좋아요 관계가 성공적으로 삭제되었습니다."
+          }
+        }
+      }
+    },
+    "/recommend_item/{item_id}": {
+      "get": {
+        "summary": "아이템 기반 추천",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "추천 기준이 되는 아이템의 ID"
+          },
+          {
+            "name": "top_n",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 5
+            },
+            "description": "반환할 추천 아이템 개수 (기본값: 5)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "추천된 아이템 ID 리스트",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecommendResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "기준 아이템을 찾을 수 없음",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/recommend_user/{user_id}": {
+      "get": {
+        "summary": "유저 기반 추천",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "추천 대상 유저의 ID"
+          },
+          {
+            "name": "top_n",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 5
+            },
+            "description": "반환할 추천 아이템 개수 (기본값: 5)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "추천된 아이템 ID 리스트",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecommendResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "대상 유저를 찾을 수 없음",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ItemCreateRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "아이템의 고유 ID"
+          },
+          "title": {
+            "type": "string",
+            "description": "아이템 제목"
+          },
+          "text": {
+            "type": "string",
+            "description": "아이템 본문 텍스트"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "아이템에 연결된 태그 ID 목록 (빈 배열 허용)"
+          }
+        },
+        "required": ["id", "title", "text"],
+        "example": {
+          "id": 123,
+          "title": "예시 작품 제목",
+          "text": "이 작품의 내용이 들어갑니다.",
+          "tags": [1, 2, 5]
+        }
+      },
+      "RecommendResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "추천된 아이템 ID 리스트"
+          }
+        },
+        "example": {
+          "items": [101, 205, 309, 423, 512]
+        }
+      }
+    }
+  }
+}

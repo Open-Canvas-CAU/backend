@@ -2,6 +2,7 @@ import torch
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
+
 class Embedder:
     def __init__(self, model_name):
         device = "cuda" if torch.cuda.is_available() else "cpu"

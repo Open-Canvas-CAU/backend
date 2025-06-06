@@ -1,0 +1,21 @@
+메인서버 <-> 추천서버 통신용
+클라이언트(프론트)와 직접 통신 X
+
+recommend_swagger.json swagger에서 참고
+
+유저 계정 생성 이벤트 (필수) -> POST /user/{user_id}
+유저 계정 삭제 이벤트 (옵션) -> DELETE /user/{user_id}
+
+새로운 태그 생성 이벤트 (필수) -> POST /tag/{tag_id}
+    태그명(str) 대신 unique_id(int)
+
+태그 삭제 이벤트 (옵션) -> DELETE /tag/{tag_id}
+
+글 생성 이벤트 (필수) -> POST /item/{item_id}, BODY json {id: int, title: str, text: str, tags: [int]}
+글 삭제 이벤트 (필수) -> DELETE /item/{item_id}
+
+글 조회 이벤트 (필수) -> POST /user/{user_id}/view/{item_id}
+글 조회 취소 이벤트 (옵션) -> DELETE /user/{user_id}/view/{item_id}
+
+글 좋아요 이벤트 (필수) -> POST /user/{user_id}/like/{item_id}
+글 좋아요 취소 이벤트 (필수) -> DELETE /user/{user_id}/like/{item_id}
