@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+</head>
+<body>
+  <h2>WebSocket 테스트</h2>
+  <button onclick="connect()">연결</button>
+  <button onclick="subscribe()">구독</button>
+  <button onclick="send()">전송</button>
+  <button onclick="disconnect()">끊기</button>
+
+  <script>
+    let stompClient = null;
+    let token = 'eyJhbGciOiJIUzUxMiJ9.eyJlbWFpbCI6ImxvZ2hlbGl4MjIzQGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwic3ViIjoibG9naGVsaXgyMjNAZ21haWwuY29tIiwiaWF0IjoxNzQ4NzYwOTAyLCJleHAiOjE3NDg3NjE4MDJ9.vKUzvXujM4Ow-PhzSeKKoTBCdKRJobfGpO54aiEpGVFWwcu5S61pOoQvR8k-quBpRVoMYP6pwgPndNWjLgLOVw';
+
+    function connect() {
+      const socket = new SockJS("http://localhost:8080/ws-stomp");
+      stompClient = Stomp.over(socket);
+      stompClient.connect({ token: token }, function (frame) {
+        console.log('Connected: ' + frame);
+      });
+    }
+
+    function subscribe() {
+      stompClient.subscribe('/sub/chat/room/9e447ef6-e9b4-4e12-b28f-0b0b68964893', function (message) {
+        console.log("받은 메시지", message.body);
+      });
+    }
+
+    function send() {
+      stompClient.send("/pub/chat/message", {}, JSON.stringify({
+        roomId: "9e447ef6-e9b4-4e12-b28f-0b0b68964893",
+        message: "하이",
+        type: "EDIT"
+      }));
+    }
+
+    function disconnect() {
+      if (stompClient !== null) {
+        stompClient.disconnect(() => console.log("Disconnected"));
+      }
+    }
+  </script>
+</body>
+</html>
