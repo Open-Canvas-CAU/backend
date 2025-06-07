@@ -1,5 +1,6 @@
 	package cauCapstone.openCanvas.oauth2.handler;
 
+import cauCapstone.openCanvas.recommend.service.RecommendService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -41,6 +42,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private final UserRepository userRepository;
     private final OAuth2UserUnlinkManager oAuth2UserUnlinkManager;
     private final JwtTokenizer jwtTokenizer;
+    private final RecommendService recommendService;
 
     // determineTargetUrl 메소드로 로그인을 하는건지 회원탈퇴를 하는건지 판단한 뒤 targetUrl로 리다이렉트 한다.
     @Override
@@ -87,12 +89,17 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         	String email = principal.getUsername();	// 이게 이메일
         	
             // 처음 로그인한다면 User 엔티티 만들고 db에 저장함, 따로 oauth2User 엔티티는 없고 Color도 저장안함.
-        	// 저장된 유저가 없으면 DB에 저장 (회원가입 처리)
-        	User user = userRepository.findByEmail(email)
-        		    .orElseGet(() -> {
-        		        User newUser = new User(email, email, Role.USER);
-        		        return userRepository.save(newUser);
-        		    });
+            Optional<User> optionalUser = userRepository.findByEmail(email);
+            User user;
+
+            if (optionalUser.isPresent()) { // 기존 유저 DB에서 가져옴
+                user = optionalUser.get();
+            } else { // 저장된 유저가 없으면 DB에 저장 (회원가입 처리)
+                User newUser = new User(email, email, Role.USER);
+                user = userRepository.save(newUser);
+                // 추천서버 요청 (유저 생성)
+                recommendService.createUser(user.getId());
+            }
         	
             // 서비스 자체 서버에서 액세스 토큰, 리프레시 토큰을 발급한다.
         	// 엑세스토큰 발급.
@@ -140,7 +147,10 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         		    	throw new IllegalArgumentException("회원탈퇴할 유저를 찾을 수 없습니다.");
         		    });
             
-        	userRepository.delete(user);
+            // 추천서버 요청 (유저 삭제)
+            recommendService.deleteUser(user.getId()); // 제거 전에 요청먼저
+            
+        	userRepository.delete(user); // 삭제
             
             // 리프레시 토큰을 삭제 한다.
         	jwtTokenizer.deleteRefreshTokenBySubject(email);

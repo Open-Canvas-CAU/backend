@@ -1,5 +1,6 @@
 package cauCapstone.openCanvas.websocket;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -24,14 +25,23 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 
 @Configuration
 public class RedisConfig {
-	
+
+    @Value("${spring.data.redis.host}")
+    private String config_host;
+
+    @Value("${spring.data.redis.port}")
+    private int config_port;
+
+    @Value("${spring.data.redis.password}")
+    private String config_password;
 	// TODO: localhost(컨테이너)는 테스트용이다.
     // RedisConnectionFactory 설정 (Docker Redis 사용 시 호스트 설정)
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
         RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
-        config.setHostName("localhost");  // Docker 환경에서 Redis에 연결하기 위한 설정
-        config.setPort(6379);  // Redis 기본 포트
+        config.setHostName(config_host);  // Docker 환경에서 Redis에 연결하기 위한 설정
+        config.setPort(config_port);  // Redis 기본 포트
+        config.setPassword(config_password);
         return new LettuceConnectionFactory(config);  // LettuceConnectionFactory 사용
     }
 	

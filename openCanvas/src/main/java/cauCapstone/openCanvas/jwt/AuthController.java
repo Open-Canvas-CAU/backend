@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-@Tag(name = "어세스 토큰 재발급 API", description = """
+@Tag(name = "엑세스 토큰 재발급 API", description = """
 		 [JWT 토큰 재발급 가이드]
  1. Access Token이 만료되었을 때
 
