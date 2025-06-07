@@ -20,9 +20,9 @@ public class ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
     
     // 채팅방 객체는 Redis Hash에 "CHAT_ROOMS"라는 키로 저장된다.
-    public ChatRoomRedisEntity createChatRoom(String name, String subject, String version) {
+    public ChatRoomRedisEntity createChatRoom(String title, String subject, String version) {
     	
-        ChatRoomRedisEntity chatRoom = ChatRoomRedisEntity.create(name, subject, version);
+        ChatRoomRedisEntity chatRoom = ChatRoomRedisEntity.create(title, subject, version);
     
     	chatRoomRepository.createRoom(chatRoom);
         

@@ -53,9 +53,13 @@ public class Content {
 	@Column(unique = true)
 	private String title;
 	
+	@Column
+	private String official;
+	
 	public Content(Cover cover) {
 		this.view = 1;
 		this.cover = cover;
 		this.title = cover.getTitle();
+		this.official = "1.1";
 	}
 }

@@ -117,4 +117,52 @@ public class WritingController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
+    
+    @GetMapping("/get/offical")
+    @Operation(summary = "official로 지정한 글을 가져옵니다.", description = "만약 유저가 채택하고 싶은 글이 있고"
+    		+ "official로 채택한 버전이 있으면 루트부터 그 글까지 가져옵니다."
+    		+ "지정을 하지 않으면 루트에 해당되는 글만 불러옵니다."
+    		+ "contentDto를 요청하고 contentDto를 받으면 바로 호출해야합니다."
+    		+ "contentDto를 받고 List<WritingDto>를 리턴합니다.")
+    public ResponseEntity<List<WritingDto>> getOffical(@RequestBody ContentDto contentDto){
+    	List<WritingDto> writingDtos = writingService.getOfficial(contentDto);
+    	return ResponseEntity.ok(writingDtos);
+    }
+    
+    @PostMapping("/set/official")
+    @Operation(summary = "official을 새로 지정합니다.", description = "루트 유저가 official로 채택하고 싶은 writingDto가 있다면"
+    		+ "골라서 채택합니다."
+    		+ "official로 채택할 버전을 지정하면 그 글을 불러옵니다."
+    		+ "writingDto(depth, siblingIndex, title있는버전)으로 호출합니다."
+    		+ "List<WritingDto>를 리턴합니다.")
+    public ResponseEntity<List<WritingDto>> setOffical(@RequestBody WritingDto writingDto){
+    	
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
+        String email = (String) auth.getPrincipal();
+    	
+    	List<WritingDto> writingDtos = writingService.setOfficial(writingDto, email);
+    	return ResponseEntity.ok(writingDtos);
+    }
+    
+
+    @PostMapping("/delete/except-official")
+    @Operation(summary = "official로 지정한 것 제외 삭제.", description = "루트 유저가 official로 채택한 글 조각을 "
+    		+ "제외하고 모두 삭제합니다."
+    		+ "contentDto를 받고, 해당 official을 리턴합니다.")
+    public ResponseEntity<List<WritingDto>> deleteWithoutOfficial(@RequestBody ContentDto contentDto) {
+        
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
+        String email = (String) auth.getPrincipal();
+    	
+        List<WritingDto> remainings = writingService.deleteWithoutOfficial(contentDto, email);
+        return ResponseEntity.ok(remainings);
+    }
 }
