@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import cauCapstone.openCanvas.rdb.dto.ContentDto;
 import cauCapstone.openCanvas.rdb.dto.WritingDto;
+import cauCapstone.openCanvas.rdb.service.ContentService;
 import cauCapstone.openCanvas.rdb.service.WritingService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -145,6 +146,9 @@ public class WritingController {
         String email = (String) auth.getPrincipal();
     	
     	List<WritingDto> writingDtos = writingService.setOfficial(writingDto, email);
+    	
+    	// TODO: 여기서 장르 서비스 불러야함.
+    	
     	return ResponseEntity.ok(writingDtos);
     }
     

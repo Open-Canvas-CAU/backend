@@ -3,6 +3,7 @@ package cauCapstone.openCanvas.rdb.service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import cauCapstone.openCanvas.rdb.entity.Writing;
 import cauCapstone.openCanvas.rdb.repository.ContentRepository;
 import cauCapstone.openCanvas.rdb.repository.UserRepository;
 import cauCapstone.openCanvas.rdb.repository.WritingRepository;
+import cauCapstone.openCanvas.recommend.service.RecommendService;
 import cauCapstone.openCanvas.websocket.chatroom.ChatRoomRedisEntity;
 import cauCapstone.openCanvas.websocket.chatroom.ChatRoomRepository;
 import jakarta.transaction.Transactional;
@@ -29,6 +31,7 @@ public class WritingService {
     private final UserRepository userRepository;
     private final ContentRepository contentRepository;
     private final ChatRoomRepository chatRoomRepository;
+    private final RecommendService recommendService;
 
     // 현재 depth로 글을 써도 되는지 체크함.
     // 체크하고 문서방 만들기.
@@ -223,6 +226,7 @@ public class WritingService {
         }
     }
     
+    @Transactional
     public List<WritingDto> setOfficial(WritingDto writingDto, String email) {
         Writing current = writingRepository
                 .findByDepthAndSiblingIndexAndContent_Title(writingDto.getDepth(), writingDto.getSiblingIndex(), 
@@ -250,10 +254,32 @@ public class WritingService {
 
         // 5. Content official 필드 설정 및 저장
         content.setOfficial(versionStr);
+        
+        // TODO: 필요시 기존에 content에 붙어있던 태그 삭제, 새로운 tag를 부여해줘야함
+        
+        // 추천서버에 기존글 삭제, 태그 저장한 새 글 등록(List<Writing>으로 저장했던 글을 String content로 풀어저장)
+        recommendService.deleteItem(content.getId());
+        
+        List<WritingDto> wOfficial = getWritingWithParents(writingDto);
+        
+        // 전체 텍스트 빌드
+        StringBuilder textBuilder = new StringBuilder();
+        for (WritingDto dto : wOfficial) {
+            textBuilder.append(dto.getBody()).append("\n");
+        }
+        
+        Map<String, Object> itemRequest = Map.of(
+                "id", content.getId(), // ✅ contentId 사용
+                "title", content.getTitle(),
+                "text", textBuilder.toString().trim(),
+                "tags", content.getGenres()
+            );
+        recommendService.createItem(itemRequest);
+        
         contentRepository.save(content);
 
         // 6. 공식 버전 기준 트리 반환
-        return getWritingWithParents(writingDto);
+        return wOfficial;
     }
     
     public List<WritingDto> deleteWithoutOfficial(ContentDto contentDto, String email){

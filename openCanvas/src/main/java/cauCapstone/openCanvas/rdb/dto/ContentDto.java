@@ -47,12 +47,15 @@ public class ContentDto {
 	
 	private String official;
 	
+	@Schema(description = "해당 official의 장르 리스트 (예: 판타지, 스릴러 등)")
+	private List<String> genres = new ArrayList<>();
+	
 	public Content toEntity(Cover cover) {
 		return new Content(cover);
 	}
 	
 	public ContentDto(Long id, int view, List<ResCommentDto> commentDtos, List<WritingDto> writingDtos, 
-			CoverDto coverDto, int likeNum, LikeType likeType, String title) {
+			CoverDto coverDto, int likeNum, LikeType likeType, String title, List<String> genres) {
 		this.id = id;
 		this.view = view;
 		this.commentDtos = commentDtos;
@@ -61,10 +64,11 @@ public class ContentDto {
 		this.likeNum = likeNum;
 		this.likeType = likeType;
 		this.title = title;
+		this.genres = genres;
 	}
 	
 	public ContentDto (Long id, int view, List<ResCommentDto> commentDtos, List<WritingDto> writingDtos, 
-			List<LikeDto> likeDtos, CoverDto coverDto) {
+			List<LikeDto> likeDtos, CoverDto coverDto, List<String> genres) {
 		this.id = id;
 		this.view = view;
 		this.commentDtos = commentDtos;
@@ -72,6 +76,7 @@ public class ContentDto {
 		this.likeDtos = likeDtos;
 		this.coverDto = coverDto;
 		this.title = coverDto.getTitle();
+		this.genres = genres;
 	}
 	
 	public static ContentDto fromEntityWithLike(List<ResCommentDto> commentDtos, Content content, int likeNum, LikeType likeType) {
@@ -86,7 +91,8 @@ public class ContentDto {
 		
 		String title = coverDto.getTitle();
     	
-    	return new ContentDto(content.getId(), content.getView(), commentDtos, writingDtos, coverDto, likeNum, likeType, title);
+    	return new ContentDto(content.getId(), content.getView(), commentDtos, writingDtos, coverDto, likeNum, 
+    			likeType, title, content.getGenres());
 	}
 	
 }
