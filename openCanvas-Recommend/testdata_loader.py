@@ -6,6 +6,9 @@ import config
 from database import Database
 from embedder import Embedder
 
+# DB 서버에 test_data 로드
+# 추천서버 테스트할 때 사용했던 코드
+
 db = Database(config.NEO4J_URI, config.NEO4J_USER, config.NEO4J_PASSWORD)
 embedder = Embedder(config.EMBEDDING_MODEL_NAME)
 
