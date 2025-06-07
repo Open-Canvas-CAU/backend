@@ -45,6 +45,8 @@ public class ContentDto {
 	@Schema(description = "제목")
 	private String title;	// title 항목 추가
 	
+	private String official;
+	
 	public Content toEntity(Cover cover) {
 		return new Content(cover);
 	}

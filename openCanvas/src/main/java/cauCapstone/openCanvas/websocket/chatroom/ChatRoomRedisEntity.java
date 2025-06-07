@@ -25,7 +25,7 @@ public class ChatRoomRedisEntity implements Serializable {
     private static final long serialVersionUID = 6494678977089006639L;
 
     private String roomId;
-    private String name;	// content title 넣으면됨
+    private String name;
     private String subject;
     private String version;		// 현재 Writing 버전을 string화 해서 넣음. TODO: .으로 구분해서 파싱해야함
 

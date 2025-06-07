@@ -51,4 +51,6 @@ public interface WritingRepository extends JpaRepository<Writing, Long> {
 	
 	// 부모 엔티티로 자식을 찾기 위해 이 메소드를 씀. 
 	List<Writing> findAllByParent(Writing parent);
+	
+	List<Writing> findAllByContent_Title(String title);
 }

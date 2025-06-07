@@ -201,6 +201,99 @@ public class WritingService {
                 .collect(Collectors.toList());
     }
     
+    // 버전을 String화 한다. 2 1 2 이렇게 리스트에다가 싣으면 2.1.2로 리턴한다.
+    public String getStringVersion(List<Integer> versionList) {
+        return versionList.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining("."));
+    }
+    
+    public List<WritingDto> getOfficial(ContentDto contentDto){
+    	String version = contentDto.getOfficial();
+    	
+    	List<Integer> iversion = getIntVersion(version);
+    	
+    	WritingDto writingDto = new WritingDto(iversion.get(0), iversion.get(1), contentDto.getTitle());
+
+        try {
+            return getWritingWithParents(writingDto);
+        } catch (IllegalArgumentException e) {
+            // 해당 버전에 글이 하나도 없다는 뜻 → 그냥 빈 리스트 반환
+            return List.of();
+        }
+    }
+    
+    public List<WritingDto> setOfficial(WritingDto writingDto, String email) {
+        Writing current = writingRepository
+                .findByDepthAndSiblingIndexAndContent_Title(writingDto.getDepth(), writingDto.getSiblingIndex(), 
+                		writingDto.getTitle())
+                .orElseThrow(() ->  new IllegalArgumentException("존재하지 않는 writing입니다."));
+        
+        Writing root = writingRepository
+                .findByDepthAndSiblingIndexAndContent_Title(1, 0, 
+                		writingDto.getTitle())
+                .orElseThrow(() ->  new IllegalArgumentException("존재하지 않는 writing입니다."));
+        
+        // 3. 작성자 확인
+        if (!email.equals(root.getUser().getEmail())) {
+            throw new IllegalArgumentException("해당 콘텐츠의 작성자만 official을 설정할 수 있습니다.");
+        }
+        
+
+        // 4. Content 조회 및 버전 문자열 생성
+        Content content = current.getContent();
+        String versionStr = current.getDepth() + "." + current.getSiblingIndex();
+
+        if (current.getParent() != null) {
+            versionStr = versionStr + "." + current.getParent().getSiblingIndex();
+        }
+
+        // 5. Content official 필드 설정 및 저장
+        content.setOfficial(versionStr);
+        contentRepository.save(content);
+
+        // 6. 공식 버전 기준 트리 반환
+        return getWritingWithParents(writingDto);
+    }
+    
+    public List<WritingDto> deleteWithoutOfficial(ContentDto contentDto, String email){
+    	
+        Writing root = writingRepository
+                .findByDepthAndSiblingIndexAndContent_Title(1, 0, 
+                		contentDto.getTitle())
+                .orElseThrow(() ->  new IllegalArgumentException("존재하지 않는 writing입니다."));
+    	
+        if (!email.equals(root.getUser().getEmail())) {
+            throw new IllegalArgumentException("해당 콘텐츠의 작성자만 official을 설정할 수 있습니다.");
+        }
+        
+        String version = contentDto.getOfficial();
+        
+        List<Integer> iversion = getIntVersion(version);
+        
+        WritingDto writingDto = new WritingDto(iversion.get(0), iversion.get(1), contentDto.getTitle());
+        
+        List<WritingDto> officials= getWritingWithParents(writingDto);
+        
+        
+        // 3. 전체 글 가져오기
+        List<Writing> allWritings = writingRepository.findAllByContent_Title(contentDto.getTitle());
+
+        // 4. official에 포함된 글은 유지, 나머지는 삭제
+        List<int[]> officialKeys = officials.stream()
+                .map(w -> new int[]{w.getDepth(), w.getSiblingIndex()})
+                .toList();
+
+        List<Writing> toDelete = allWritings.stream()
+                .filter(w -> officialKeys.stream()
+                        .noneMatch(key -> key[0] == w.getDepth() && key[1] == w.getSiblingIndex()))
+                .collect(Collectors.toList());
+
+        writingRepository.deleteAll(toDelete); // 진짜 삭제
+
+        return officials;
+    }
+     
     /*
     // 루트 사용자를 확인하고 삭제할 글을 다른곳에 이어붙인다.
     // 삭제할 dto를 매개변수로 받아야한다.
