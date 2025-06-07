@@ -41,7 +41,7 @@ public class RedisConfig {
         RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
         config.setHostName(config_host);  // Docker 환경에서 Redis에 연결하기 위한 설정
         config.setPort(config_port);  // Redis 기본 포트
-        config.setPassword(config_password);
+        // config.setPassword(config_password);
         return new LettuceConnectionFactory(config);  // LettuceConnectionFactory 사용
     }
 	
