@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import cauCapstone.openCanvas.openai.coverimage.service;
 import cauCapstone.openCanvas.rdb.dto.ContentDto;
 import cauCapstone.openCanvas.rdb.dto.WritingDto;
 import cauCapstone.openCanvas.rdb.entity.Content;
@@ -276,6 +277,17 @@ public class WritingService {
             );
         recommendService.createItem(itemRequest);
         
+        // 조회수 1000 이상 작품 일러스트 생성
+        if (content.getView() >= 1000) {
+            CoverImageService coverImageService;
+            coverImageService.makeImageAndSave(
+                content.getId(),
+                content.getTitle(),
+                content.getGenres(),
+                writingDto.getBody()
+            );
+        }
+
         contentRepository.save(content);
 
         // 6. 공식 버전 기준 트리 반환
