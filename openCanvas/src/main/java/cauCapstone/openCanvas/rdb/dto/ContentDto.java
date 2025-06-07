@@ -5,6 +5,7 @@ import java.util.List;
 
 import cauCapstone.openCanvas.rdb.entity.Content;
 import cauCapstone.openCanvas.rdb.entity.Cover;
+import cauCapstone.openCanvas.rdb.entity.Genre;
 import cauCapstone.openCanvas.rdb.entity.LikeType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -90,9 +91,13 @@ public class ContentDto {
 		CoverDto coverDto = CoverDto.fromEntity(content.getCover(), content.getId());
 		
 		String title = coverDto.getTitle();
+		
+		List<String> genreNames = content.getGenres().stream()
+			    .map(Genre::getName)
+			    .toList();
     	
     	return new ContentDto(content.getId(), content.getView(), commentDtos, writingDtos, coverDto, likeNum, 
-    			likeType, title, content.getGenres());
+    			likeType, title, genreNames);
 	}
 	
 }

@@ -59,10 +59,8 @@ public class Content {
 	@Column
 	private String official;
 	
-	@ElementCollection(fetch = FetchType.EAGER)
-	@CollectionTable(name = "content_genres", joinColumns = @JoinColumn(name = "content_id"))
-	@Column(name = "genre")
-	private List<String> genres = new ArrayList<>();
+	@OneToMany(mappedBy = "content", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+	private List<Genre> genres = new ArrayList<>();
 	
 	public Content(Cover cover) {
 		this.view = 1;
