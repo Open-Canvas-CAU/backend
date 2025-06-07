@@ -8,10 +8,11 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import cauCapstone.openCanvas.openai.coverimage.service;
+import cauCapstone.openCanvas.openai.coverimage.service.CoverImageService;
 import cauCapstone.openCanvas.rdb.dto.ContentDto;
 import cauCapstone.openCanvas.rdb.dto.WritingDto;
 import cauCapstone.openCanvas.rdb.entity.Content;
+import cauCapstone.openCanvas.rdb.entity.Genre;
 import cauCapstone.openCanvas.rdb.entity.Role;
 import cauCapstone.openCanvas.rdb.entity.User;
 import cauCapstone.openCanvas.rdb.entity.Writing;
@@ -33,6 +34,7 @@ public class WritingService {
     private final ContentRepository contentRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final RecommendService recommendService;
+    private final CoverImageService coverImageService;
 
     // 현재 depth로 글을 써도 되는지 체크함.
     // 체크하고 문서방 만들기.
@@ -269,22 +271,29 @@ public class WritingService {
             textBuilder.append(dto.getBody()).append("\n");
         }
         
+        // 장르목록
+		List<String> genreNames = content.getGenres().stream()
+			    .map(Genre::getName)
+			    .toList();
+        
         Map<String, Object> itemRequest = Map.of(
-                "id", content.getId(), // ✅ contentId 사용
+                "id", content.getId(), 
                 "title", content.getTitle(),
                 "text", textBuilder.toString().trim(),
                 "tags", content.getGenres()
             );
         recommendService.createItem(itemRequest);
         
+        
+        
         // 조회수 1000 이상 작품 일러스트 생성
+        // TODO: 장르목록 확인, List -> array로 바꾼거 확인
         if (content.getView() >= 1000) {
-            CoverImageService coverImageService;
             coverImageService.makeImageAndSave(
-                content.getId(),
+                Long.toString(content.getId()),
                 content.getTitle(),
-                content.getGenres(),
-                writingDto.getBody()
+                genreNames.toArray(new String[0]),
+                textBuilder.toString().trim()
             );
         }
 
