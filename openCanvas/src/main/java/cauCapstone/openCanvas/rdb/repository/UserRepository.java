@@ -8,18 +8,19 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import cauCapstone.openCanvas.rdb.entity.Content;
+import cauCapstone.openCanvas.rdb.entity.Cover;
 import cauCapstone.openCanvas.rdb.entity.Role;
 import cauCapstone.openCanvas.rdb.entity.User;
 
 public interface UserRepository extends JpaRepository<User, Long>{
 	
-	// 좋아요를 누른 글을 가져오기
-	@Query("""
-	    SELECT l.content
-	    FROM Like l 
-	    WHERE l.user.id = :userId
-	""")
-	List<Content> findContentWithLikeByUserId(@Param("userId") Long id);
+    // 좋아요를 누른 Cover만 반환
+    @Query("""
+        SELECT l.content.cover
+        FROM Like l 
+        WHERE l.user.id = :userId
+    """)
+    List<Cover> findCoversLikedByUserId(@Param("userId") Long userId);
 	
 	// TODO: 유저의 색을 정하는 메소드 구현하기(그냥 색 세팅만 해주면됨).
 	Optional<User> findByEmail(String email);

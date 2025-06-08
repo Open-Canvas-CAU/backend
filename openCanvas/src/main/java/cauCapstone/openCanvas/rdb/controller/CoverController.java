@@ -61,7 +61,7 @@ public class CoverController {
     
     @GetMapping("/search")
     @Operation(summary = "제목 검색", description = "제목에 키워드가 포함된 커버를 검색합니다, 제목(keyword)를 주면된다.")
-    public ResponseEntity<List<CoverDto>> searchCovers(@RequestParam String keyword) {
+    public ResponseEntity<List<CoverDto>> searchCovers(@RequestParam(name = "keyword") String keyword) {
         return ResponseEntity.ok(coverService.searchCoversByTitle(keyword));
     }
 }

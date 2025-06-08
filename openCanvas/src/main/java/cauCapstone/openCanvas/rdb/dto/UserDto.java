@@ -60,7 +60,7 @@ public class UserDto {
     // 좋아요 했던 것과 글썼던 목록도 보기위한 UserDto
     public static UserDto fromEntity(User user) {
     	List<LikeDto> likeDtos = user.getLikes().stream()
-    			.map((like) -> LikeDto.fromEntity(like)).toList();
+    			.map((like) -> LikeDto.fromEntity(like,like.getContent().getTitle(), user.getEmail())).toList();
     	
     	List<WritingDto> writingDtos = user.getWritings().stream()
     			.map(writing -> {

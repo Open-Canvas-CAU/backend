@@ -5,8 +5,11 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import cauCapstone.openCanvas.rdb.dto.ContentDto;
+import cauCapstone.openCanvas.rdb.dto.CoverDto;
 import cauCapstone.openCanvas.rdb.dto.UserDto;
 import cauCapstone.openCanvas.rdb.entity.Content;
+import cauCapstone.openCanvas.rdb.entity.Cover;
 import cauCapstone.openCanvas.rdb.entity.Role;
 import cauCapstone.openCanvas.rdb.entity.User;
 import cauCapstone.openCanvas.rdb.repository.UserRepository;
@@ -47,10 +50,17 @@ public class UserService {
 	
     // ! 유저필요
 	// 유저가 좋아요한 content 반환
-    public List<Content> getLikeContents(String email){
+    public List<CoverDto> getLikeContents(String email){
         User user = userRepository.findByEmail(email)
 	            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
     	
-    	return userRepository.findContentWithLikeByUserId(user.getId());
+    	List<Cover> covers = userRepository.findCoversLikedByUserId(user.getId());
+    	
+        return covers.stream()
+                .map(cover -> {
+                    Long contentId = cover.getContent() != null ? cover.getContent().getId() : null;
+                    return CoverDto.fromEntity(cover, contentId);
+                })
+                .toList();
     }
 }

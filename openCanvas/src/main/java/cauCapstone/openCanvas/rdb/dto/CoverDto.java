@@ -17,6 +17,8 @@ import lombok.Setter;
 @Schema(description = "표지 정보에 관한 dto 응답용,"
 		+ "제목 이미지 타임스탬프 조회수 좋아요개수 응답함")
 public class CoverDto {
+	@Schema(description = "coverId")
+	private Long id;
 	@Schema(description = "글 제목")
 	private String title;
 	@Schema(description = "이미지url")
@@ -27,18 +29,22 @@ public class CoverDto {
 	private LocalDateTime time;
 	
 	// 조회수
-	private int view;
+	@Schema(description = "조회수")
+	private Integer view;
 	// 좋아요 개수
+	@Schema(description = "좋아요갯수")
 	private Long likeNum;	// TODO: 나중에 잘 안되면 (int) 해서 타입바꾸기.
 	
-	public CoverDto(String title, String coverImageUrl, Long contentId, LocalDateTime time) {
+	public CoverDto(Long id, String title, String coverImageUrl, Long contentId, LocalDateTime time) {
+		this.id = id;
 		this.title = title;
 		this.coverImageUrl = coverImageUrl;
 		this.contentId = contentId;
 		this.time = time;
 	}
 	
-	public CoverDto(String title, String coverImageUrl, LocalDateTime time, int view, Long likeNum) {
+	public CoverDto(Long id, String title, String coverImageUrl, LocalDateTime time, int view, Long likeNum) {
+		this.id = id;
 		this.title= title;
 		this.coverImageUrl = coverImageUrl;
 		this.time = time;
@@ -48,7 +54,7 @@ public class CoverDto {
 	
 	public static CoverDto fromEntity(Cover cover, Long contentId) {
 		
-		return new CoverDto(cover.getTitle(), cover.getCoverImageUrl(), contentId, cover.getTime());
+		return new CoverDto(cover.getId(), cover.getTitle(), cover.getCoverImageUrl(), contentId, cover.getTime());
 	}
 	
 	/*

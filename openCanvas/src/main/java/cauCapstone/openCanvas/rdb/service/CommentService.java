@@ -29,14 +29,17 @@ public class CommentService {
 	private final CommentLikeRepository commentLikeRepository;
 	
 	// ! 유저필요
-	public Comment save(ReqCommentDto commentDto, String email) {
+	public List<ResCommentDto> save(ReqCommentDto commentDto, String email) {
 	    Content content = contentRepository.findById(commentDto.getContentId())
 	            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 콘텐츠입니다."));
 	        User user = userRepository.findByEmail(email)
 	            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
 	        Comment comment = commentDto.toEntity(content, user);
-	        return commentRepository.save(comment);
+	        
+	        commentRepository.save(comment);
+	        
+	        return getContentComments(email, content.getId());
 	}
 	
 	// 글에(content) 있는 댓글 조회
@@ -67,21 +70,22 @@ public class CommentService {
 	
 	// ! 유저필요
 	// 댓글을 삭제하는 메소드
-	public void deleteComment(Long commentId, String email, Long contentId) {
+	public List<ResCommentDto> deleteComment(Long commentId, String email, Long contentId) {
 		User user = userRepository.findByEmail(email)
 	            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 		
 	    Comment comment = commentRepository.findByIdAndUserIdAndContentId(commentId, user.getId(), contentId)
 	            .orElseThrow(() -> new IllegalArgumentException("해당 댓글이 존재하지 않거나 삭제 권한이 없습니다."));
 
-	        commentRepository.delete(comment);
+	    commentRepository.delete(comment);
+	        
+	    return getContentComments(email, contentId);
 	}
 	
 	// ! 유저필요
     // 좋아요 또는 싫어요를 눌렀을때 토글하기 : 안눌렀던 것을 눌렀으면 기존에 눌렀던 것 찾아서 삭제후 안눌렀던거 추가
-	// 댓글 id를 리턴함.
 	@Transactional
-	public Long toggleLike(String email, Long commentId, LikeType newLikeType) {
+	public List<ResCommentDto> toggleLike(String email, Long commentId, LikeType newLikeType) {
 	    User user = userRepository.findByEmail(email)
 	        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
@@ -95,7 +99,7 @@ public class CommentService {
             // 1. 같은 타입을 또 누른 경우 → 삭제 (토글 취소)
             if (existingLike.getLikeType() == newLikeType) {
             	commentLikeRepository.delete(existingLike);
-                return existingLike.getComment().getId();
+                return getContentComments(email, comment.getContent().getId());
             }
 
             // 2. 다른 타입을 누른 경우 → 기존 삭제 후 새로 생성
@@ -107,7 +111,7 @@ public class CommentService {
         newLike.setComment(comment);
         commentLikeRepository.save(newLike);
         
-        return comment.getId();
+        return getContentComments(email, comment.getContent().getId());
 	}
 	
 	// commentId로 ResCommentDto 리턴

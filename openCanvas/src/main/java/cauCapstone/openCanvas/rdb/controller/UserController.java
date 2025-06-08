@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import cauCapstone.openCanvas.rdb.dto.ContentDto;
+import cauCapstone.openCanvas.rdb.dto.CoverDto;
 import cauCapstone.openCanvas.rdb.dto.UserDto;
 import cauCapstone.openCanvas.rdb.entity.Content;
 import cauCapstone.openCanvas.rdb.entity.User;
@@ -43,11 +45,11 @@ public class UserController {
         return ResponseEntity.ok("색상 변경 성공: " + updatedUser.getColor());
     }
 
-    // 유저가 좋아요한 콘텐츠 목록 반환
+    // 유저가 좋아요한 커버 목록 반환
     @GetMapping("/likes")
-    @Operation(summary = "유저가 좋아요한 contentDto 반환", description = "유저가 좋아요한 contentDto 반환, "
+    @Operation(summary = "유저가 좋아요한 coverDto 반환", description = "유저가 좋아요한 coverDto 반환, "
     		+ "좋아요 누른 작품을 찾을 수 있다")
-    public ResponseEntity<List<Content>> getLikedContents() {
+    public ResponseEntity<List<CoverDto>> getLikedContents() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth == null || !auth.isAuthenticated()) {
@@ -55,7 +57,7 @@ public class UserController {
         }
 
         String email = (String) auth.getPrincipal();
-        List<Content> likedContents = userService.getLikeContents(email);
+        List<CoverDto> likedContents = userService.getLikeContents(email);
 
         return ResponseEntity.ok(likedContents);
     }

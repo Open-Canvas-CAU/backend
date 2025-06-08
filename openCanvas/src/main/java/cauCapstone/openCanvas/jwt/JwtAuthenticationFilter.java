@@ -44,6 +44,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             } catch (RuntimeException ex) {
                 // 유효하지 않은 JWT → 인증은 실패하지만 요청은 계속 진행
                 logger.warn("JWT 검증 실패: " + ex.getMessage());
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized: Invalid JWT");
+                return; // 요청 흐름 종료
             }
         }
 

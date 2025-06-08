@@ -25,10 +25,7 @@ public class LikeDto {
 	@Schema(description = "enum LIKE, DISLIKE 두가지있음")
 	private LikeType likeType;
 	
-	public static LikeDto fromEntity(Like like) {
-        String title = like.getContent().getTitle();  // 또는 content.getTitle()
-		
-		String email = like.getUser().getEmail();
+	public static LikeDto fromEntity(Like like, String title, String email) {
     	
     	return new LikeDto(title, email, like.getLiketype());
 	}
