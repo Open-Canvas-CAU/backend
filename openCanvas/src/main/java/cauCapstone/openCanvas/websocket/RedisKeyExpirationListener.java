@@ -52,12 +52,12 @@ public class RedisKeyExpirationListener extends KeyExpirationEventMessageListene
             log.warn("editorSubject 정보 없음. roomId: {}", roomId);
             return;
         }
+        
+        // 2. ROOMOUT + 상태 제거
+        removeEditorService.removeEditorSubject(subject);
 
         if (subject.equals(editorSubject)) {
             log.info("편집자 {}가 3분간 재연결하지 않아 문서방 {} 제거 시작", subject, roomId);
-
-            // 1. ROOMOUT + 상태 제거
-            removeEditorService.removeEditorSubject(subject);
 
             // 2. 스냅샷 DB 저장
             snapshotService.saveSnapshotToDB(roomId);

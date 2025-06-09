@@ -19,7 +19,7 @@ public class SubscribeRepository {
     private final RedisTemplate<String, String> redisTemplate;
     private static final String SESSION_PREFIX = "ws:subscribe:";
     private static final String DISCONNECT_PREFIX = "disconnect";
-    private static final String LOCK_PREFIX = " lock:document:";
+    private static final String LOCK_PREFIX = "lock:document:";
     
     // ChatRoomRepository에서 문서방을 만들 때, roomId, editorSubject를 같이 저장해둔다.
     public void registerEditorSubject(String roomId, String subject) {
@@ -62,7 +62,10 @@ public class SubscribeRepository {
     	String key2 = SESSION_PREFIX + "room:" + roomId + ":subject";
     	
         redisTemplate.delete(key1);
-        redisTemplate.opsForSet().remove(key2, subject);
+        // roomId가 있을 때만, roomId → subject 셋에서 제거
+        if (roomId != null) {
+            redisTemplate.opsForSet().remove(key2, subject);
+        }
     }
     
     public void removeEditorSubjectKey(String roomId) {

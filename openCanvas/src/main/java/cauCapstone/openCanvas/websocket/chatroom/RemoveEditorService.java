@@ -43,20 +43,26 @@ public class RemoveEditorService {
     	
     	String roomId = subscribeRepository.getRoomIdBySubject(subject);
     	
+    	
+        // 구독 정보 삭제 !!! 위에다가넣을지생각.
+        subscribeRepository.removeSuscribe(subject); // subject -> roomId, roomId -> subject
+    	
     	if(roomId != null) {
         	String editorSubject = subscribeRepository.getEditorSubjectByRoomId(roomId);
+			log.info(" editorSubject from Redis = {}", editorSubject);
         
-        	if(subject.equals(editorSubject)) {
+        	if(editorSubject != null && subject.equals(editorSubject)) {
             	Set<String> subjects = subscribeRepository.getSubjectsByRoomId(roomId);
-            	
+				log.info("📢 ROOMOUT 보낼 대상 subjects: {}", subjects);
+				
                 sendROOMOUTmessage(subjects, roomId);
-            	
-                // 구독 정보 삭제
-                subscribeRepository.removeSuscribe(subject); // subject -> roomId, roomId -> subject
+				
                 subscribeRepository.removeEditorSubjectKey(roomId); // roomId -> editorSubject
-                
+				log.info(" removing editorSubjectKey for roomId={}", roomId);
+				
                 // 락키를 삭제한다.
             	subscribeRepository.removeLockKey(roomId);
+				log.info(" removing lock key for roomId={}", roomId);
             	
             	return roomId;
         	}else {
@@ -87,4 +93,16 @@ public class RemoveEditorService {
     	}
     }
     
+    /*
+    public String forceR(String subject, String roomId) {
+        // 구독 정보 삭제
+        subscribeRepository.removeSuscribe(subject); // subject -> roomId, roomId -> subject
+        subscribeRepository.removeEditorSubjectKey(roomId); // roomId -> editorSubject
+        
+        // 락키를 삭제한다.
+    	subscribeRepository.removeLockKey(roomId);
+        
+        return null;
+    }
+    */
 }
