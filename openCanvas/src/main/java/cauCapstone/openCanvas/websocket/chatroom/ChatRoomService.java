@@ -43,7 +43,12 @@ public class ChatRoomService {
         // 5. Cover 존재 확인
         Cover cover = coverRepository.findByTitle(title)
             .orElseThrow(() -> new IllegalArgumentException("해당 제목의 Cover가 존재하지 않습니다."));
-
+        
+        
+        if(cover.getRoomType() == RoomType.COMPLETE) {
+        	throw new IllegalArgumentException("해당 roomType이 COMPLETE입니다.");
+        }
+        
         // 6. roomType, roomId 설정 후 저장
         cover.setRoomType(RoomType.EDITING); // RoomType이 enum이면 EDITING으로 설정
         cover.setRoomId(chatRoom.getRoomId());
