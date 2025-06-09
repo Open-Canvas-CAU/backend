@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 
 import cauCapstone.openCanvas.rdb.entity.Cover;
+import cauCapstone.openCanvas.rdb.entity.RoomType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -35,6 +36,14 @@ public class CoverDto {
 	@Schema(description = "좋아요갯수")
 	private Long likeNum;	// TODO: 나중에 잘 안되면 (int) 해서 타입바꾸기.
 	
+	@Schema(description = "편집중일때; EDITING (roomId와 같이 실림)"
+			+ "편집 가능할때; AVAILABLE"
+			+ "완성했을때; COMPLETE")
+	private RoomType roomType;
+	
+	@Schema(description = "현재 편집중인 문서방의 id")
+	private String roomId;
+	
 	public CoverDto(Long id, String title, String coverImageUrl, Long contentId, LocalDateTime time) {
 		this.id = id;
 		this.title = title;
@@ -43,13 +52,16 @@ public class CoverDto {
 		this.time = time;
 	}
 	
-	public CoverDto(Long id, String title, String coverImageUrl, LocalDateTime time, int view, Long likeNum) {
+	public CoverDto(Long id, String title, String coverImageUrl, LocalDateTime time, int view, Long likeNum
+			, RoomType roomType, String roomId) {
 		this.id = id;
 		this.title= title;
 		this.coverImageUrl = coverImageUrl;
 		this.time = time;
 		this.view = view;
 		this.likeNum = likeNum;
+		this.roomType = roomType;
+		this.roomId = roomId;
 	}
 	
 	public static CoverDto fromEntity(Cover cover, Long contentId) {

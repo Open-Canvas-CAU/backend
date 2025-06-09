@@ -7,10 +7,13 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Service;
 
+import cauCapstone.openCanvas.rdb.entity.Cover;
+import cauCapstone.openCanvas.rdb.entity.RoomType;
+import cauCapstone.openCanvas.rdb.repository.CoverRepository;
 import cauCapstone.openCanvas.websocket.chatmessage.RedisSubscriber;
 import lombok.RequiredArgsConstructor;
 
-//TODO: 문서방을 만들 때 원래 있던 문서를 가져오는 과정이 필요하다.
+
 @RequiredArgsConstructor
 @Service
 public class ChatRoomService {
@@ -18,6 +21,7 @@ public class ChatRoomService {
     private final RedisSubscriber redisSubscriber; // 구독 처리 서비스
     private final SubscribeRepository subscribeRegistryService;
     private final ChatRoomRepository chatRoomRepository;
+    private final CoverRepository coverRepository;
     
     // 채팅방 객체는 Redis Hash에 "CHAT_ROOMS"라는 키로 저장된다.
     public ChatRoomRedisEntity createChatRoom(String title, String subject, String version) {
@@ -35,6 +39,15 @@ public class ChatRoomService {
         redisMessageListener.addMessageListener(redisSubscriber, topic);
         
         // 문서방이 만들어지고나서 문서 편집 락을 걸기 때문에, 여기서 락을 걸지 않는다.
+        
+        // 5. Cover 존재 확인
+        Cover cover = coverRepository.findByTitle(title)
+            .orElseThrow(() -> new IllegalArgumentException("해당 제목의 Cover가 존재하지 않습니다."));
+
+        // 6. roomType, roomId 설정 후 저장
+        cover.setRoomType(RoomType.EDITING); // RoomType이 enum이면 EDITING으로 설정
+        cover.setRoomId(chatRoom.getRoomId());
+        coverRepository.save(cover);
         
         return chatRoom;
     }

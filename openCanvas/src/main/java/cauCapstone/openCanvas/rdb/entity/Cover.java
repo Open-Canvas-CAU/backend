@@ -6,6 +6,8 @@ import java.time.LocalDateTime;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
@@ -37,6 +39,11 @@ public class Cover {
 	
 	// 만든 시간
 	private LocalDateTime time;
+	
+    @Enumerated(EnumType.STRING)
+	private RoomType roomType;
+	
+	private String roomId;
 	
 	public Cover(String title, String coverImageUrl, LocalDateTime time) {
 		this.title = title;

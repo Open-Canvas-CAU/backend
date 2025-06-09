@@ -63,6 +63,8 @@ public class RemoveEditorService {
                 // 락키를 삭제한다.
             	subscribeRepository.removeLockKey(roomId);
 				log.info(" removing lock key for roomId={}", roomId);
+				
+				
             	
             	return roomId;
         	}else {

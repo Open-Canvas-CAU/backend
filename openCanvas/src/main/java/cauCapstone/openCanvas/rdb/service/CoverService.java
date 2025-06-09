@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import cauCapstone.openCanvas.rdb.dto.CoverDto;
 import cauCapstone.openCanvas.rdb.entity.Cover;
 import cauCapstone.openCanvas.rdb.entity.Role;
+import cauCapstone.openCanvas.rdb.entity.RoomType;
 import cauCapstone.openCanvas.rdb.entity.User;
 import cauCapstone.openCanvas.rdb.repository.CoverRepository;
 import cauCapstone.openCanvas.rdb.repository.UserRepository;
@@ -21,6 +22,7 @@ public class CoverService {
 	// 커버를 생성하는 메소드
 	public Cover makeCover(CoverDto coverDto) {
 		Cover cover = coverDto.toEntity();
+		cover.setRoomType(RoomType.AVAILABLE);
 		return coverRepository.save(cover);
 	}
 	
