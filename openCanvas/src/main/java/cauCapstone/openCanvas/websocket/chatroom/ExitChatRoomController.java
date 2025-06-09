@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/room")
+@RequestMapping("/api/rooms")
 public class ExitChatRoomController {
 
     private final SubscribeRepository subscribeRepository;
@@ -30,7 +30,7 @@ public class ExitChatRoomController {
     	    		+ "편집자가 아니라면 아무일도 일어나지 않습니다."
     	 
     	)
-    public ResponseEntity<String> exitRoom(@RequestParam String roomId) {
+    public ResponseEntity<String> exitRoom(@RequestParam(name = "roomId") String roomId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {
             return ResponseEntity.status(401).body("인증되지 않은 사용자입니다.");

@@ -14,9 +14,11 @@ import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import cauCapstone.openCanvas.websocket.chatmessage.RedisSubscriber;
+import cauCapstone.openCanvas.websocket.chatroom.ChatRoomRedisEntity;
 import cauCapstone.openCanvas.websocket.chatroom.RemoveChatRoomService;
 import cauCapstone.openCanvas.websocket.chatroom.RemoveEditorService;
 import cauCapstone.openCanvas.websocket.chatroom.SubscribeRepository;
+import cauCapstone.openCanvas.websocket.snapshot.SnapshotEntity;
 import cauCapstone.openCanvas.websocket.snapshot.SnapshotService;
 
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
@@ -72,7 +74,20 @@ public class RedisConfig {
 		redisTemplate.setConnectionFactory(connectionFactory);
 		redisTemplate.setKeySerializer(new StringRedisSerializer());
 		redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(String.class));
+
+	    redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+	    redisTemplate.setHashValueSerializer(new Jackson2JsonRedisSerializer<>(ChatRoomRedisEntity.class));
 		return redisTemplate;
+	}
+	
+	@Bean
+	public RedisTemplate<String, SnapshotEntity> snapshotRedisTemplate(RedisConnectionFactory connectionFactory) {
+	    RedisTemplate<String, SnapshotEntity> template = new RedisTemplate<>();
+	    template.setConnectionFactory(connectionFactory);
+	    template.setKeySerializer(new StringRedisSerializer());
+	    template.setHashKeySerializer(new StringRedisSerializer());
+	    template.setHashValueSerializer(new Jackson2JsonRedisSerializer<>(SnapshotEntity.class));
+	    return template;
 	}
 	
 	// DISCONNECT시에 3분 TTL 키가 만료됬는지 확인하기 위한 리스너이다.

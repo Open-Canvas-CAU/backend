@@ -2,6 +2,7 @@ package cauCapstone.openCanvas.websocket.snapshot;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
@@ -17,7 +18,8 @@ public class SnapshotRepository {
 
     private static final String SNAPSHOT_KEY = "SNAPSHOT:";
 
-    private final RedisTemplate<String, Object> redisTemplate;
+    @Qualifier("snapshotRedisTemplate") 
+    private final RedisTemplate<String, SnapshotEntity> redisTemplate;
     private HashOperations<String, String, SnapshotEntity> hashOps;
 
     @PostConstruct

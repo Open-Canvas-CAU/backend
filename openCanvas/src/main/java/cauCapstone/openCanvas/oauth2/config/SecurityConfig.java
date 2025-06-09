@@ -83,8 +83,7 @@ public class SecurityConfig {
 	  public CorsConfigurationSource corsConfigurationSource() {
 	      CorsConfiguration config = new CorsConfiguration();
 	      config.setAllowCredentials(true);
-          config.setAllowedOriginPatterns(List.of("http://localhost:3000", "http://localhost:5174"));
-	      // config.setAllowedOriginPatterns(List.of("http://localhost:3000"));  // 정확한 Origin 설정
+	      config.setAllowedOriginPatterns(List.of("http://localhost:3000", "http://localhost:5174"));  // 정확한 Origin 설정
 	      config.setAllowedHeaders(List.of("*"));
 	      config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 	      config.setExposedHeaders(List.of("Authorization"));

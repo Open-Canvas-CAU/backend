@@ -7,6 +7,8 @@ import java.util.UUID;
 
 import org.springframework.web.socket.WebSocketSession;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,6 +19,7 @@ import lombok.Setter;
 // 편집자의 유저정보도 저장해서 권한있는 사람을 알기쉽게한다.
 @Getter
 @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ChatRoomRedisEntity implements Serializable {
 	
 	// Redis에 저장하려면 Serializable해야한다.
