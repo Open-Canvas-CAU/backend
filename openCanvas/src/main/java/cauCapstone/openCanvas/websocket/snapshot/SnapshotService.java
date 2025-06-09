@@ -73,4 +73,35 @@ public class SnapshotService {
                 .map(Integer::parseInt)
                 .collect(Collectors.toList());
     }
+    
+    public WritingDto giveSnapshot(String roomId) {
+        ChatRoomRedisEntity room = chatRoomRepository.findRoomById(roomId);
+        if (room == null) {
+            throw new IllegalArgumentException("존재하지 않는 문서방입니다: " + roomId);
+        }
+        
+        // 2. 스냅샷 가져오기
+        List<SnapshotEntity> snapshots = snapshotRepository.getAllSnapshots(roomId);
+        if (snapshots == null || snapshots.isEmpty()) {
+            throw new IllegalStateException("스냅샷이 존재하지 않습니다: " + roomId);
+        }
+        
+        List<Integer> version = getIntVersion(room.getVersion());
+        
+        Integer parentSiblingIndex = (version.size() > 2) ? version.get(2) : null;
+        
+        // 블록 번호 기준 정렬
+        snapshots.sort(Comparator.comparingInt(s -> Integer.parseInt(s.getNum())));
+        
+        // 하나로 이어붙이기
+        String fullBody = snapshots.stream().map(SnapshotEntity::getBody).collect(Collectors.joining());
+        
+        LocalDateTime time = LocalDateTime.now();
+
+        // 4. WritingDto 생성
+        WritingDto writingDto = new WritingDto(version.get(0), version.get(1), parentSiblingIndex, 
+        		fullBody, time, room.getSubject(), room.getName());
+        
+        return writingDto;
+    }
 }

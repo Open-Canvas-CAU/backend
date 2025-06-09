@@ -2,6 +2,7 @@ package cauCapstone.openCanvas.websocket.chatroom;
 
 import cauCapstone.openCanvas.rdb.dto.WritingDto;
 import cauCapstone.openCanvas.rdb.service.WritingService;
+import cauCapstone.openCanvas.websocket.snapshot.SnapshotService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
@@ -20,6 +21,7 @@ public class ChatRoomController {
 
     private final WritingService writingService;
     private final ChatRoomService chatRoomService;
+    private final SnapshotService snapshotService;
 
     @PostMapping("/create")
     @Operation(
@@ -87,7 +89,12 @@ public class ChatRoomController {
         }
 
         List<WritingDto> history = writingService.getWritingsWithRoomId(roomId);
-
+        
+        // 현재까지의 스냅샷을 마지막 writingDto로 전달
+        WritingDto snapshot = snapshotService.giveSnapshot(roomId);
+        
+        history.add(snapshot);
+        
         ChatRoomDto chatRoomDto = ChatRoomDto.fromEntity(chatRoom, history); 
 
         return ResponseEntity.ok(chatRoomDto);
