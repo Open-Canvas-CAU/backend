@@ -45,9 +45,13 @@ public class Cover {
 	
 	private String roomId;
 	
-	public Cover(String title, String coverImageUrl, LocalDateTime time) {
+	@Column(name = "cover_limit")
+	private Integer limit;
+	
+	public Cover(String title, String coverImageUrl, LocalDateTime time, Integer limit) {
 		this.title = title;
 		this.coverImageUrl = coverImageUrl;
 		this.time = time;
+		this.limit = limit;
 	}
 }

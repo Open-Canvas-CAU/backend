@@ -60,4 +60,11 @@ public class CoverService {
     public List<CoverDto> searchCoversByTitle(String keyword) {
        return coverRepository.searchByTitleKeyword(keyword);
     }
+    
+    public CoverDto checkCover(Long coverId) {
+        return coverRepository.findById(coverId)
+            .map(c -> CoverDto.fromEntity(c, null)) // 두 번째 인자는 contentDto, 필요 없으면 null
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 Cover입니다."));
+    }
+    
 }

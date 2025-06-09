@@ -44,16 +44,20 @@ public class CoverDto {
 	@Schema(description = "현재 편집중인 문서방의 id")
 	private String roomId;
 	
-	public CoverDto(Long id, String title, String coverImageUrl, Long contentId, LocalDateTime time) {
+	@Schema(description = "최대 이어쓸 수 있는 작가수 한계")
+	private Integer limit;
+	
+	public CoverDto(Long id, String title, String coverImageUrl, Long contentId, LocalDateTime time, Integer limit) {
 		this.id = id;
 		this.title = title;
 		this.coverImageUrl = coverImageUrl;
 		this.contentId = contentId;
 		this.time = time;
+		this.limit = limit;
 	}
 	
 	public CoverDto(Long id, String title, String coverImageUrl, LocalDateTime time, int view, Long likeNum
-			, RoomType roomType, String roomId) {
+			, RoomType roomType, String roomId, Integer limit) {
 		this.id = id;
 		this.title= title;
 		this.coverImageUrl = coverImageUrl;
@@ -62,12 +66,15 @@ public class CoverDto {
 		this.likeNum = likeNum;
 		this.roomType = roomType;
 		this.roomId = roomId;
+		this.limit = limit;
 	}
 	
 	public static CoverDto fromEntity(Cover cover, Long contentId) {
 		
-		return new CoverDto(cover.getId(), cover.getTitle(), cover.getCoverImageUrl(), contentId, cover.getTime());
+		return new CoverDto(cover.getId(), cover.getTitle(), cover.getCoverImageUrl(), contentId, 
+				cover.getTime(), cover.getLimit());
 	}
+	
 	
 	/*
 	// 커버 화면에 좋아요 수까지 보임, content는 가져오지 않음.
@@ -79,7 +86,7 @@ public class CoverDto {
 	*/
 	
 	public Cover toEntity() {
-		return new Cover(title, coverImageUrl, time);
+		return new Cover(title, coverImageUrl, time, limit);
 	}	// 좋아요 개수
 	
 }

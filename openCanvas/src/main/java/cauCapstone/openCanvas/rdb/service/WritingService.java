@@ -14,9 +14,11 @@ import cauCapstone.openCanvas.rdb.dto.WritingDto;
 import cauCapstone.openCanvas.rdb.entity.Content;
 import cauCapstone.openCanvas.rdb.entity.Genre;
 import cauCapstone.openCanvas.rdb.entity.Role;
+import cauCapstone.openCanvas.rdb.entity.RoomType;
 import cauCapstone.openCanvas.rdb.entity.User;
 import cauCapstone.openCanvas.rdb.entity.Writing;
 import cauCapstone.openCanvas.rdb.repository.ContentRepository;
+import cauCapstone.openCanvas.rdb.repository.CoverRepository;
 import cauCapstone.openCanvas.rdb.repository.UserRepository;
 import cauCapstone.openCanvas.rdb.repository.WritingRepository;
 import cauCapstone.openCanvas.recommend.service.RecommendService;
@@ -35,6 +37,7 @@ public class WritingService {
     private final ChatRoomRepository chatRoomRepository;
     private final RecommendService recommendService;
     private final CoverImageService coverImageService;
+    private final CoverRepository coverRepository;
 
     // 현재 depth로 글을 써도 되는지 체크함.
     // 체크하고 문서방 만들기.
@@ -102,6 +105,12 @@ public class WritingService {
 
         // 4. Writing 저장
         Writing writing = writingDto.toEntity(user, content, parent);
+        
+        if(parent.getDepth() >= content.getCover().getLimit()) {
+        	content.getCover().setRoomType(RoomType.COMPLETE);
+        	coverRepository.save(content.getCover());
+        	
+        }
 
         return writingRepository.save(writing);
     }

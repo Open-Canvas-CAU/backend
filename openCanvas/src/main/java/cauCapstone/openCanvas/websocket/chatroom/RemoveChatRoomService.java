@@ -36,7 +36,9 @@ public class RemoveChatRoomService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 제목의 Cover가 존재하지 않습니다."));
 
             // 6. roomType, roomId 설정 후 저장
-            cover.setRoomType(RoomType.AVAILABLE); // RoomType이 enum이면 EDITING으로 설정
+            if(cover.getRoomType() != RoomType.COMPLETE) {
+                cover.setRoomType(RoomType.AVAILABLE); 
+            }
             cover.setRoomId(null);
             coverRepository.save(cover);
     	}
