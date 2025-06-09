@@ -83,7 +83,7 @@ public class SnapshotService {
         // 2. 스냅샷 가져오기
         List<SnapshotEntity> snapshots = snapshotRepository.getAllSnapshots(roomId);
         if (snapshots == null || snapshots.isEmpty()) {
-            throw new IllegalStateException("스냅샷이 존재하지 않습니다: " + roomId);
+            return null;  // ❗ 스냅샷이 없어도 null 반환으로 처리
         }
         
         List<Integer> version = getIntVersion(room.getVersion());

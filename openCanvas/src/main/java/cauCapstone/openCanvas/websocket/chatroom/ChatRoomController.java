@@ -93,7 +93,9 @@ public class ChatRoomController {
         // 현재까지의 스냅샷을 마지막 writingDto로 전달
         WritingDto snapshot = snapshotService.giveSnapshot(roomId);
         
-        history.add(snapshot);
+        if(snapshot != null) {
+            history.add(snapshot);	
+        }
         
         ChatRoomDto chatRoomDto = ChatRoomDto.fromEntity(chatRoom, history); 
 
