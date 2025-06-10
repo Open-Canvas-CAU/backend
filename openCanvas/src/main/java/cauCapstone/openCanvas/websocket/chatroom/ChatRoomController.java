@@ -2,10 +2,12 @@ package cauCapstone.openCanvas.websocket.chatroom;
 
 import cauCapstone.openCanvas.rdb.dto.WritingDto;
 import cauCapstone.openCanvas.rdb.service.WritingService;
+import cauCapstone.openCanvas.websocket.chatmessage.ChatMessage;
 import cauCapstone.openCanvas.websocket.snapshot.SnapshotService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.redis.connection.ReactiveSubscription.Message;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -74,6 +76,8 @@ public class ChatRoomController {
         description = "roomId를 통해 기존 문서방에 구독자로 참여합니다. "
                     + "이전 글들의 히스토리를 받아옵니다. 웹소켓 연결 전 조회용으로 사용됩니다,"
                     + "roomId를 받고, ChatRoomDto를 리턴한다."
+                    + "중요: 메지시를 통채로 보내는게 아니라서 문서방을 열고 작성하기 시작한 글도 실려서 보냅니다."
+                    + "List<WritingDto>의 마지막 writingDto는 작성중인 글입니다."
     )
     public ResponseEntity<?> enterRoomAsSubscriber(@PathVariable(name = "roomId") String roomId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -91,13 +95,10 @@ public class ChatRoomController {
         List<WritingDto> history = writingService.getWritingsWithRoomId(roomId);
         
         // 현재까지의 스냅샷을 마지막 writingDto로 전달
-        WritingDto snapshot = snapshotService.giveSnapshot(roomId);
+        List<ChatMessage> snapshotList = snapshotService.giveSnapshot(roomId);
+       
         
-        if(snapshot != null) {
-            history.add(snapshot);	
-        }
-        
-        ChatRoomDto chatRoomDto = ChatRoomDto.fromEntity(chatRoom, history); 
+        ChatRoomDto chatRoomDto = ChatRoomDto.fromEntity(chatRoom, history, snapshotList); 
 
         return ResponseEntity.ok(chatRoomDto);
     }

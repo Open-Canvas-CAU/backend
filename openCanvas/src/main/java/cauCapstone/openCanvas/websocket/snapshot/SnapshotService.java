@@ -14,6 +14,7 @@ import cauCapstone.openCanvas.rdb.dto.WritingDto;
 import cauCapstone.openCanvas.rdb.entity.Writing;
 import cauCapstone.openCanvas.rdb.repository.WritingRepository;
 import cauCapstone.openCanvas.rdb.service.WritingService;
+import cauCapstone.openCanvas.websocket.chatmessage.ChatMessage;
 import cauCapstone.openCanvas.websocket.chatroom.ChatRoomRedisEntity;
 import cauCapstone.openCanvas.websocket.chatroom.ChatRoomRepository;
 import lombok.RequiredArgsConstructor;
@@ -74,7 +75,7 @@ public class SnapshotService {
                 .collect(Collectors.toList());
     }
     
-    public WritingDto giveSnapshot(String roomId) {
+    public List<ChatMessage> giveSnapshot(String roomId) {
         ChatRoomRedisEntity room = chatRoomRepository.findRoomById(roomId);
         if (room == null) {
             throw new IllegalArgumentException("존재하지 않는 문서방입니다: " + roomId);
@@ -82,26 +83,25 @@ public class SnapshotService {
         
         // 2. 스냅샷 가져오기
         List<SnapshotEntity> snapshots = snapshotRepository.getAllSnapshots(roomId);
+        
         if (snapshots == null || snapshots.isEmpty()) {
-            return null;  // ❗ 스냅샷이 없어도 null 반환으로 처리
+            return List.of(); // 빈 리스트 반환
         }
-        
-        List<Integer> version = getIntVersion(room.getVersion());
-        
-        Integer parentSiblingIndex = (version.size() > 2) ? version.get(2) : null;
-        
+
         // 블록 번호 기준 정렬
         snapshots.sort(Comparator.comparingInt(s -> Integer.parseInt(s.getNum())));
-        
-        // 하나로 이어붙이기
-        String fullBody = snapshots.stream().map(SnapshotEntity::getBody).collect(Collectors.joining());
-        
-        LocalDateTime time = LocalDateTime.now();
 
-        // 4. WritingDto 생성
-        WritingDto writingDto = new WritingDto(version.get(0), version.get(1), parentSiblingIndex, 
-        		fullBody, time, room.getSubject(), room.getName());
-        
-        return writingDto;
+        // 각 SnapshotEntity를 ChatMessage로 변환
+        return snapshots.stream()
+            .map(snapshot -> {
+                ChatMessage message = new ChatMessage();
+                message.setType(ChatMessage.MessageType.EDIT); // 메시지 타입 EDIT로 설정
+                message.setRoomId(roomId);
+                message.setSubject(room.getSubject()); // 작성자 이메일
+                message.setMessage(snapshot.getBody()); // 블럭 내용
+                message.setNum(snapshot.getNum());      // 블럭 번호
+                return message;
+            })
+            .collect(Collectors.toList());
     }
 }
