@@ -29,7 +29,7 @@ public class ContentController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인되지 않음");
         }
         String email = (String) auth.getPrincipal();
-        ContentDto contentDto = contentService.getContent(coverId, email);
+        ContentDto contentDto = contentService.getContent(coverId, email, true);
         return ResponseEntity.ok(contentDto);
     }
 
@@ -47,7 +47,7 @@ public class ContentController {
         }
         String email = (String) auth.getPrincipal();
         Long coverId = contentService.toggleLike(email, contentId, likeType);
-        ContentDto contentDto = contentService.getContent(coverId, email);
+        ContentDto contentDto = contentService.getContent(coverId, email, false);
         return ResponseEntity.ok(contentDto);
     }
 }

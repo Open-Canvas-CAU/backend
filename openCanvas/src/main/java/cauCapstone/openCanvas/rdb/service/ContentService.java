@@ -37,7 +37,7 @@ public class ContentService {
 	
 	// ! 유저필요
 	// coverId를 받아서 Content를 리턴하는 메소드, Content가 없으면 새로 저장한다.
-	public ContentDto getContent(Long coverId, String email) {
+	public ContentDto getContent(Long coverId, String email, boolean isView) {
         User user = userRepository.findByEmail(email)
 	            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
@@ -56,9 +56,11 @@ public class ContentService {
 	    // 댓글을 찾음.
 	    Content conWithComments = contentRepository.findByIdWithComments(content.getId()); 
 	    
-	    // 조회수 +1 함.
-	    conWithComments.setView(conWithComments.getView() + 1);
-	    contentRepository.save(conWithComments);
+	    if(isView) {
+		    // 조회수 +1 함.
+		    conWithComments.setView(conWithComments.getView() + 1);
+		    contentRepository.save(conWithComments);	
+	    }
 	    
 	    // 추천 서버에 유저 조회 기록 전송
 	    recommendService.createUserView(user.getId(), conWithComments.getId());
