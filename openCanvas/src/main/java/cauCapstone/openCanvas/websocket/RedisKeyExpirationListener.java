@@ -74,13 +74,12 @@ public class RedisKeyExpirationListener extends KeyExpirationEventMessageListene
         }else if(expiredKey.startsWith("lock:document:")) {
             // 예시 키: lock:document:roomId:subject
             String[] parts = expiredKey.split(":");
-            if (parts.length < 4) {
+            if (parts.length < 3) {
                 log.warn("lock 키 포맷 이상함: {}", expiredKey);
                 return;
             }
 
             String roomId = parts[2];
-            String subject = parts[3];
 
             String editorSubject = subscribeRepository.getEditorSubjectByRoomId(roomId);
             if (editorSubject == null) {
@@ -88,25 +87,8 @@ public class RedisKeyExpirationListener extends KeyExpirationEventMessageListene
                 return;
             }
             
-            // 2. ROOMOUT + 상태 제거
-            removeEditorService.removeEditorSubject(subject);
-
-            if (subject.equals(editorSubject)) {
-                log.info("편집자 {}가 작성을 하지않아 {} 제거 시작", subject, roomId);
-
-                // 2. 스냅샷 DB 저장
-                snapshotService.saveSnapshotToDB(roomId);
-
-                // 3. 문서방 제거
-                // 메시지 전송 후 잠시 기다렸다가 리스너 제거
-                new Thread(() -> {
-                    try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
-                    removeChatRoomService.removeChatRoom(roomId);
-                }).start();
-
-            } else {
-                // 편집자가 아닌 경우, 아무것도 할 필요가 없음.
-            }
+            subscribeRepository.makeDisconnectKey2(roomId, editorSubject);
+            log.info("락 만료로 인해 disconnect 키 [{}] 강제로 만듦 → 삭제 결과: {}", editorSubject);
         }
     }
 }

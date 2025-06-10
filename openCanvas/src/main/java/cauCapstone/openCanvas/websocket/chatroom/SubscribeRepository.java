@@ -89,6 +89,12 @@ public class SubscribeRepository {
         redisTemplate.opsForValue().set(key, "pending", Duration.ofMinutes(3));
     }
     
+    // disconnect 키 저장 메소드2
+    public void makeDisconnectKey2(String roomId, String subject) {
+        String key = getDisconnectKey(roomId, subject);
+        redisTemplate.opsForValue().set(key, "pending", Duration.ofMinutes(1));
+    }
+    
     // disconnect 키 삭제 메소드
     public void removeDisconnectKey(String roomId, String subject) {
         String key = getDisconnectKey(roomId, subject);
@@ -108,7 +114,7 @@ public class SubscribeRepository {
         return redisTemplate.opsForValue().get(getLockKey(roomId));
     }
 
-    // 락 설정 (편집자 subject 기준)
+    // 락 설정 (편집자 subject 기준) !테스트
     public void setLock(String roomId, String subject) {
         redisTemplate.opsForValue().set(getLockKey(roomId), subject, Duration.ofMinutes(30));
     }
