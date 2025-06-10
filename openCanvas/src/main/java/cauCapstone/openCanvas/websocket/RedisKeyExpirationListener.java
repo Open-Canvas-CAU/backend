@@ -92,7 +92,7 @@ public class RedisKeyExpirationListener extends KeyExpirationEventMessageListene
             removeEditorService.removeEditorSubject(subject);
 
             if (subject.equals(editorSubject)) {
-                log.info("편집자 {}가 3분간 재연결하지 않아 문서방 {} 제거 시작", subject, roomId);
+                log.info("편집자 {}가 작성을 하지않아 {} 제거 시작", subject, roomId);
 
                 // 2. 스냅샷 DB 저장
                 snapshotService.saveSnapshotToDB(roomId);

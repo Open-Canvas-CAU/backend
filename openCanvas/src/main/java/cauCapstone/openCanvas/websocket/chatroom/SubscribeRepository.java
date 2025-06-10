@@ -114,8 +114,8 @@ public class SubscribeRepository {
     }
 
     // 락 TTL 갱신
-    public void extendLock(String roomId) {
-        redisTemplate.expire(getLockKey(roomId), Duration.ofMinutes(10));
+    public void extendLock(String roomId, String subject) {
+        redisTemplate.opsForValue().set(getLockKey(roomId), subject, Duration.ofMinutes(30));
     }
     
 

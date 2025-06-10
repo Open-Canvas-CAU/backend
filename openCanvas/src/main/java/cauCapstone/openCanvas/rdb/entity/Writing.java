@@ -2,6 +2,7 @@ package cauCapstone.openCanvas.rdb.entity;
 
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -34,6 +35,7 @@ public class Writing {
 	@JoinColumn(name = "parent_id")
 	private Writing parent;
 	
+	@Column(columnDefinition = "TEXT")
 	private String body;	// 그냥 문장을 저장함.
 	private LocalDateTime time;
 	
