@@ -28,25 +28,9 @@ public class ChatRoomDto {
 	@Schema(description = "여태 썼던 글 모음")
     private List<WritingDto> writings;
     
-	@Schema(description = "편집자가 작성중인 글의 내용과, 블럭번호를 실어서 보냄")
-    private List<ChatMessage> snapshots;
-	
-	public ChatRoomDto (String roomId, String name, String subject, String version, List<WritingDto> writings){
-		this.roomId = roomId;
-		this.name = name;
-		this.subject = subject;
-		this.version = version;
-		this.writings = writings;
-	}
-    
     public static ChatRoomDto fromEntity(ChatRoomRedisEntity crre, List<WritingDto> w){
     	
     	return new ChatRoomDto(crre.getRoomId(), crre.getName(), crre.getSubject(), crre.getVersion(), w);
     }
     
-    public static ChatRoomDto fromEntity(ChatRoomRedisEntity crre, List<WritingDto> w, List<ChatMessage> messages){
-    	
-    	return new ChatRoomDto(crre.getRoomId(), crre.getName(), crre.getSubject(), crre.getVersion(), w,
-    			messages);
-    }
 }

@@ -94,11 +94,13 @@ public class ChatRoomController {
 
         List<WritingDto> history = writingService.getWritingsWithRoomId(roomId);
         
+        /*
         // 현재까지의 스냅샷을 마지막 writingDto로 전달
         List<ChatMessage> snapshotList = snapshotService.giveSnapshot(roomId);
+        */
        
         
-        ChatRoomDto chatRoomDto = ChatRoomDto.fromEntity(chatRoom, history, snapshotList); 
+        ChatRoomDto chatRoomDto = ChatRoomDto.fromEntity(chatRoom, history); 
 
         return ResponseEntity.ok(chatRoomDto);
     }
