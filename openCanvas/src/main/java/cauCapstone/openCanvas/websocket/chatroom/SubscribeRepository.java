@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class SubscribeRepository {
+public class SubscribeRepository {	
 	
     private final RedisTemplate<String, String> redisTemplate;
     private static final String SESSION_PREFIX = "ws:subscribe:";
@@ -117,6 +117,7 @@ public class SubscribeRepository {
     public void extendLock(String roomId) {
         redisTemplate.expire(getLockKey(roomId), Duration.ofMinutes(10));
     }
+    
 
     // 락 삭제
     public void removeLockKey(String roomId) {
