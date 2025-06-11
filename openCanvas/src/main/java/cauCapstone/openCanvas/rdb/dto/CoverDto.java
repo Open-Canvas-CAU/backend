@@ -47,14 +47,15 @@ public class CoverDto {
 	@Schema(description = "최대 이어쓸 수 있는 작가수 한계")
 	private Integer limit;
 	
-	public CoverDto(Long id, String title, String coverImageUrl, Long contentId, LocalDateTime time, Integer limit) {
+	public CoverDto(Long id, String title, String coverImageUrl, Long contentId, LocalDateTime time, Integer limit
+			, RoomType roomType) {
 		this.id = id;
 		this.title = title;
 		this.coverImageUrl = coverImageUrl;
 		this.contentId = contentId;
 		this.time = time;
 		this.limit = limit;
-	}
+		this.roomType= roomType;	}
 	
 	public CoverDto(Long id, String title, String coverImageUrl, LocalDateTime time, int view, Long likeNum
 			, RoomType roomType, String roomId, Integer limit) {
@@ -72,7 +73,7 @@ public class CoverDto {
 	public static CoverDto fromEntity(Cover cover, Long contentId) {
 		
 		return new CoverDto(cover.getId(), cover.getTitle(), cover.getCoverImageUrl(), contentId, 
-				cover.getTime(), cover.getLimit());
+				cover.getTime(), cover.getLimit(), cover.getRoomType());
 	}
 	
 	
