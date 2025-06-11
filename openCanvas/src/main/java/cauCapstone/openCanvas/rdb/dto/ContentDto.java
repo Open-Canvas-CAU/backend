@@ -2,6 +2,7 @@ package cauCapstone.openCanvas.rdb.dto;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import cauCapstone.openCanvas.rdb.entity.Content;
 import cauCapstone.openCanvas.rdb.entity.Cover;
@@ -93,8 +94,8 @@ public class ContentDto {
 		String title = coverDto.getTitle();
 		
 		List<String> genreNames = content.getGenres().stream()
-			    .map(Genre::getName)
-			    .toList();
+			    .map(contentGenre -> contentGenre.getGenre().getName())
+			    .collect(Collectors.toList());
     	
     	return new ContentDto(content.getId(), content.getView(), commentDtos, writingDtos, coverDto, likeNum, 
     			likeType, title, genreNames);

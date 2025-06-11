@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -17,8 +18,10 @@ import cauCapstone.openCanvas.rdb.entity.Role;
 import cauCapstone.openCanvas.rdb.entity.RoomType;
 import cauCapstone.openCanvas.rdb.entity.User;
 import cauCapstone.openCanvas.rdb.entity.Writing;
+import cauCapstone.openCanvas.rdb.repository.ContentGenreRepository;
 import cauCapstone.openCanvas.rdb.repository.ContentRepository;
 import cauCapstone.openCanvas.rdb.repository.CoverRepository;
+import cauCapstone.openCanvas.rdb.repository.GenreRepository;
 import cauCapstone.openCanvas.rdb.repository.UserRepository;
 import cauCapstone.openCanvas.rdb.repository.WritingRepository;
 import cauCapstone.openCanvas.recommend.service.RecommendService;
@@ -38,6 +41,8 @@ public class WritingService {
     private final RecommendService recommendService;
     private final CoverImageService coverImageService;
     private final CoverRepository coverRepository;
+	private final ContentGenreRepository contentGenreRepository;
+	private final GenreRepository genreRepository;
 
     // 현재 depth로 글을 써도 되는지 체크함.
     // 체크하고 문서방 만들기.
@@ -281,15 +286,20 @@ public class WritingService {
         }
         
         // 장르목록
-		List<String> genreNames = content.getGenres().stream()
-			    .map(Genre::getName)
-			    .toList();
+		List<String> genreNames = contentGenreRepository.findGenreNamesByContentId(content.getId());
+		
+        // 장르 이름을 기반으로 장르 ID 리스트로 변환
+		List<Integer> tagIds = genreNames.stream()
+			    .map(name -> genreRepository.findByName(name))
+			    .filter(Optional::isPresent)
+			    .map(opt -> opt.get().getId().intValue())  // 여기서 Long → int 변환
+			    .collect(Collectors.toList());
         
         Map<String, Object> itemRequest = Map.of(
                 "id", content.getId(), 
                 "title", content.getTitle(),
                 "text", textBuilder.toString().trim(),
-                "tags", content.getGenres()
+                "tags", tagIds
             );
         recommendService.createItem(itemRequest);
         

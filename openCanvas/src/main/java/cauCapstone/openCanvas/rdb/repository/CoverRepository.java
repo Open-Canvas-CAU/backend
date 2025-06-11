@@ -73,4 +73,27 @@ public interface CoverRepository extends JpaRepository<Cover, Long>{
     	Optional<Cover> findByTitle(String title);
     	
     	Optional<Cover> findByRoomId(String roomId);
+    	
+    	@Query("""
+    		    SELECT new cauCapstone.openCanvas.rdb.dto.CoverDto(
+    		        c.id,
+    		        c.title,
+    		        c.coverImageUrl,
+    		        c.time,
+    		        COALESCE(ct.view, 0),
+    		        COALESCE(COUNT(l), 0),
+    		        c.roomType,
+    		        c.roomId,
+    		        c.limit
+    		    )
+    		    FROM Genre g
+    		    JOIN g.content_genres cg
+    		    JOIN cg.content ct
+    		    JOIN ct.cover c
+    		    LEFT JOIN ct.likes l
+    		    WHERE g.name = :genreName
+    		    GROUP BY c.id, c.title, c.coverImageUrl, c.time, ct.view, c.roomType, c.roomId, c.limit
+    		    ORDER BY c.id DESC
+    		""")
+    		List<CoverDto> findCoverDtosByGenreName(@Param("genreName") String genreName);
 }
