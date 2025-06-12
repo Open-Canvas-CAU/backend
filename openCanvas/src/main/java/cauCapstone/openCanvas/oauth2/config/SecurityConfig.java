@@ -6,6 +6,7 @@ import cauCapstone.openCanvas.oauth2.handler.OAuth2AuthenticationFailureHandler;
 import cauCapstone.openCanvas.oauth2.handler.OAuth2AuthenticationSuccessHandler;
 import cauCapstone.openCanvas.oauth2.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
 import cauCapstone.openCanvas.oauth2.oauth2.service.CustomOAuth2UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,6 +46,13 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(sessions -> sessions.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"error\": \"Unauthorized\"}");
+                        })
+                    )
                 .authorizeHttpRequests((requests) -> requests
                         // 1. CORS Preflight 요청은 인증 없이 항상 허용합니다.
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
