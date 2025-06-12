@@ -126,8 +126,10 @@ def delete_user_like(user_id: int, item_id: int):
 def get_recommend_by_item(item_id: int, top_n: int = 5):
     logger.info(f"[RECOMMEND_BY_ITEM] item_id: {item_id}, top_n: {top_n}")
     global db
+    # items = db.recommend_by_item(item_id=item_id, top_n=top_n, viewW=config.VIEW_WEIGHT,
+    #                              likeW=config.LIKE_WEIGHT, tagW=config.TAG_WEIGHT)
     items = db.recommend_by_item(item_id=item_id, top_n=top_n, viewW=config.VIEW_WEIGHT,
-                                 likeW=config.LIKE_WEIGHT, tagW=config.TAG_WEIGHT)
+                                 likeW=config.LIKE_WEIGHT, tagW=config.TAG_WEIGHT, embW=config.EMB_WEIGHT)
     return RecommendResponse(
         items=items
     )

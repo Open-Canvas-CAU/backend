@@ -1,5 +1,6 @@
 from typing import List, Dict
 import logging
+import math
 
 from neo4j import GraphDatabase
 
@@ -170,7 +171,63 @@ class Database():
                 iid=item_id,
             )
 
-    def recommend_by_item(self, item_id: int, top_n: int, viewW: float, likeW: float, tagW: float):
+    def recommend_by_item2(self, item_id: int, top_n: int, viewW: float, likeW: float, tagW: float, embW: float):
+        res_scores = {}
+        with self.driver.session() as session:
+            result = session.run(
+                "MATCH (i:Item {item_id: $iid}) RETURN i.embedding AS emb",
+                iid=item_id
+            )
+            record = result.single()
+            if not record or record['emb'] is None:
+                return []
+            target_emb: List[float] = record['emb']
+            target_norm = math.sqrt(sum(x*x for x in target_emb))
+
+            co_results = session.run(
+                """
+                MATCH (u:User)-[:VIEWED]->(i:Item {item_id: $iid})
+                MATCH (u)-[rel]->(r:Item)
+                WHERE r.item_id <> $iid AND type(rel) IN [\"VIEWED\", \"LIKED\"]
+                WITH r, sum(
+                  CASE WHEN type(rel) = \"VIEWED\" THEN $viewW
+                       WHEN type(rel) = \"LIKED\"  THEN $likeW
+                       ELSE 0 END
+                ) AS act_score
+                OPTIONAL MATCH (r)-[:IN_TAG]->(tag:Tag)<-[:IN_TAG]-(orig:Item {item_id: $iid})
+                WITH r, act_score, count(DISTINCT tag) AS shared_tags
+                RETURN r.item_id AS id, act_score AS act_score, shared_tags
+                """,
+                iid=item_id, viewW=viewW, likeW=likeW
+            )
+
+            for rec in co_results:
+                rid = int(rec['id'])
+                act_score = rec['act_score']
+                shared = rec['shared_tags']
+                tag_score = (shared * shared) * tagW
+
+                emb_res = session.run(
+                    "MATCH (r:Item {item_id: $rid}) RETURN r.embedding AS emb",
+                    rid=rid
+                ).single()
+                emb = emb_res['emb'] if emb_res and emb_res['emb'] else []
+
+                # cosine 유사도
+                if emb and target_norm > 0:
+                    norm_r = math.sqrt(sum(x*x for x in emb))
+                    cos = sum(a*b for a, b in zip(target_emb, emb)) / (target_norm * norm_r) if norm_r>0 else 0
+                else:
+                    cos = 0
+                emb_score = cos * embW
+
+                res_scores[rid] = act_score + tag_score + emb_score
+
+        ranked = sorted(res_scores.items(), key=lambda x: x[1], reverse=True)
+        return [iid for iid, _ in ranked[:top_n]]
+
+
+    def recommend_by_item(self, item_id: int, top_n: int, viewW: float, likeW: float, tagW: float, embW: float):
         res = []
 
         # 1차 해당 작품을 본 유저들이 많이 본 다른 작품
