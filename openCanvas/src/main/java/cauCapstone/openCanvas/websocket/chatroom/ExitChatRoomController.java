@@ -39,8 +39,12 @@ public class ExitChatRoomController {
         String subject = (String) auth.getPrincipal(); // JWT 인증 기반에서 subject (이메일 등) 추출
 
         String editorSubject = subscribeRepository.getEditorSubjectByRoomId(roomId);
+        
+        removeEditorService.removeEditorSubject(subject);
+        
         if (editorSubject == null || !subject.equals(editorSubject)) {
             log.info("편집자가 아닌 유저가 문서방 나가기 시도함. subject={}, editorSubject={}", subject, editorSubject);
+            // 2. ROOMOUT + 상태 제거
             return ResponseEntity.ok("편집자가 아니므로 아무 작업도 하지 않음.");
         }
 
@@ -48,9 +52,6 @@ public class ExitChatRoomController {
 
         // 1. disconnect 키 삭제
         subscribeRepository.removeDisconnectKey(roomId, subject);
-
-        // 2. ROOMOUT + 상태 제거
-        removeEditorService.removeEditorSubject(subject);
 
         // 3. 스냅샷 DB 저장
         snapshotService.saveSnapshotToDB(roomId);
@@ -63,4 +64,12 @@ public class ExitChatRoomController {
 
         return ResponseEntity.ok("문서방 종료 처리 완료");
     }
+    
+    /*
+    @PostMapping("/force-delete")
+    public ResponseEntity<String> forceDelete() {
+    	removeEditorService.forceR("loghelix223@gmail.com", "b0b1d61e-176e-43d1-80ef-a7c05574d810");
+        return ResponseEntity.ok("강제 삭제 시도");
+    }
+    */
 }

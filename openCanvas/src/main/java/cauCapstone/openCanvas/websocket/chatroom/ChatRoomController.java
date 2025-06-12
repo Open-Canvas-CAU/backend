@@ -2,9 +2,12 @@ package cauCapstone.openCanvas.websocket.chatroom;
 
 import cauCapstone.openCanvas.rdb.dto.WritingDto;
 import cauCapstone.openCanvas.rdb.service.WritingService;
+import cauCapstone.openCanvas.websocket.chatmessage.ChatMessage;
+import cauCapstone.openCanvas.websocket.snapshot.SnapshotService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.redis.connection.ReactiveSubscription.Message;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -20,6 +23,7 @@ public class ChatRoomController {
 
     private final WritingService writingService;
     private final ChatRoomService chatRoomService;
+    private final SnapshotService snapshotService;
 
     @PostMapping("/create")
     @Operation(
@@ -87,7 +91,13 @@ public class ChatRoomController {
         }
 
         List<WritingDto> history = writingService.getWritingsWithRoomId(roomId);
-
+        
+        /*
+        // 현재까지의 스냅샷을 마지막 writingDto로 전달
+        List<ChatMessage> snapshotList = snapshotService.giveSnapshot(roomId);
+        */
+       
+        
         ChatRoomDto chatRoomDto = ChatRoomDto.fromEntity(chatRoom, history); 
 
         return ResponseEntity.ok(chatRoomDto);

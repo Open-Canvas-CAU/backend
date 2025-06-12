@@ -84,8 +84,8 @@ public class StompHandler implements ChannelInterceptor{
         	String roomId = subscribeRegistryService.getRoomIdBySubject(subject);
         	
         	if(roomId != null && subject != null) {
-            	subscribeRegistryService.removeSuscribe(subject);
-            	
+            	// 여기 removesubscribe지움
+        		
             	// StompCommand같은 경우는 StompCommand.SEND가 아니면 메시지가 발행이 안되기 때문에 그 외의 경우엔 메시지 발행을 따로 해준다.
             	ChatMessage updateMessage = new ChatMessage();
             	updateMessage.setType(ChatMessage.MessageType.UPDATE);
@@ -114,9 +114,7 @@ public class StompHandler implements ChannelInterceptor{
         	String roomId = subscribeRegistryService.getRoomIdBySubject(subject);
         	
         	if(roomId != null && subject != null) {
-                // TODO: 여기 이상있나 테스트해보기
-                // 세션id가 바뀔거기때문에 subscribeRegistryService 관련 내용도 삭제한다.
-            	subscribeRegistryService.removeSuscribe(subject);
+        		// 여기 removesubscribe 지움.
             	
             	// StompCommand같은 경우는 StompCommand.SEND가 아니면 메시지가 발행이 안되기 때문에 그 외의 경우엔 메시지 발행을 따로 해준다.
             	ChatMessage updateMessage = new ChatMessage();

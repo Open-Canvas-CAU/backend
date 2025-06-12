@@ -64,4 +64,10 @@ public class CoverController {
     public ResponseEntity<List<CoverDto>> searchCovers(@RequestParam(name = "keyword") String keyword) {
         return ResponseEntity.ok(coverService.searchCoversByTitle(keyword));
     }
+    
+    @GetMapping("/check")
+    @Operation(summary = "캔버스 상태 확인", description = "coverId로 캔버스 상태(RoomType 등)를 확인합니다. CoverDto를 반환합니다.")
+    public ResponseEntity<CoverDto> checkCoverStatus(@RequestParam(name = "coverId") Long coverId) {
+        return ResponseEntity.ok(coverService.checkCover(coverId));
+    }
 }

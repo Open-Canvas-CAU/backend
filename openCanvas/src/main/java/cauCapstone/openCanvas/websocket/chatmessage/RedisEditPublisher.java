@@ -62,7 +62,7 @@ public class RedisEditPublisher {
             }
 
             // TTL 연장 (편집 중)
-            subscribeRepository.extendLock(roomId);
+            subscribeRepository.extendLock(roomId, subject);
         }
         
         try {

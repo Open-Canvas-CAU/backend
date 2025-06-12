@@ -60,7 +60,7 @@ public class Content {
 	private String official;
 	
 	@OneToMany(mappedBy = "content", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
-	private List<Genre> genres = new ArrayList<>();
+	private List<ContentGenre> genres = new ArrayList<>();
 	
 	public Content(Cover cover) {
 		this.view = 1;

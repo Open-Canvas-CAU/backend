@@ -14,12 +14,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class SubscribeRepository {
+public class SubscribeRepository {	
 	
     private final RedisTemplate<String, String> redisTemplate;
     private static final String SESSION_PREFIX = "ws:subscribe:";
     private static final String DISCONNECT_PREFIX = "disconnect";
-    private static final String LOCK_PREFIX = " lock:document:";
+    private static final String LOCK_PREFIX = "lock:document:";
     
     // ChatRoomRepository에서 문서방을 만들 때, roomId, editorSubject를 같이 저장해둔다.
     public void registerEditorSubject(String roomId, String subject) {
@@ -62,7 +62,10 @@ public class SubscribeRepository {
     	String key2 = SESSION_PREFIX + "room:" + roomId + ":subject";
     	
         redisTemplate.delete(key1);
-        redisTemplate.opsForSet().remove(key2, subject);
+        // roomId가 있을 때만, roomId → subject 셋에서 제거
+        if (roomId != null) {
+            redisTemplate.opsForSet().remove(key2, subject);
+        }
     }
     
     public void removeEditorSubjectKey(String roomId) {
@@ -86,6 +89,12 @@ public class SubscribeRepository {
         redisTemplate.opsForValue().set(key, "pending", Duration.ofMinutes(3));
     }
     
+    // disconnect 키 저장 메소드2
+    public void makeDisconnectKey2(String roomId, String subject) {
+        String key = getDisconnectKey(roomId, subject);
+        redisTemplate.opsForValue().set(key, "pending", Duration.ofMinutes(1));
+    }
+    
     // disconnect 키 삭제 메소드
     public void removeDisconnectKey(String roomId, String subject) {
         String key = getDisconnectKey(roomId, subject);
@@ -105,15 +114,16 @@ public class SubscribeRepository {
         return redisTemplate.opsForValue().get(getLockKey(roomId));
     }
 
-    // 락 설정 (편집자 subject 기준)
+    // 락 설정 (편집자 subject 기준) !테스트
     public void setLock(String roomId, String subject) {
         redisTemplate.opsForValue().set(getLockKey(roomId), subject, Duration.ofMinutes(30));
     }
 
     // 락 TTL 갱신
-    public void extendLock(String roomId) {
-        redisTemplate.expire(getLockKey(roomId), Duration.ofMinutes(10));
+    public void extendLock(String roomId, String subject) {
+        redisTemplate.opsForValue().set(getLockKey(roomId), subject, Duration.ofMinutes(30));
     }
+    
 
     // 락 삭제
     public void removeLockKey(String roomId) {
