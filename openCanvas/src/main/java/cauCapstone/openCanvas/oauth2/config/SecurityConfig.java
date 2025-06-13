@@ -91,14 +91,23 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        config.setAllowedOriginPatterns(List.of("http://localhost:5173")); // 프론트엔드 주소
-        config.setAllowedHeaders(List.of("*"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        config.setExposedHeaders(List.of("Authorization", "Authorization-Refresh"));
+        config.setAllowedOriginPatterns(List.of("*")); // 모든 origin 허용
+        config.setAllowedMethods(List.of("*")); // 모든 메서드 허용
+        config.setAllowedHeaders(List.of("*")); // 모든 헤더 허용
+        config.setAllowCredentials(false); // 쿠키 미허용 (true로 바꿔도 됨)
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
+        source.registerCorsConfiguration("/**", config); // 모든 경로에 적용
         return source;
+        // CorsConfiguration config = new CorsConfiguration();
+        // config.setAllowCredentials(true);
+        // config.setAllowedOriginPatterns(List.of("http://localhost:5173")); // 프론트엔드 주소
+        // config.setAllowedHeaders(List.of("*"));
+        // config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        // config.setExposedHeaders(List.of("Authorization", "Authorization-Refresh"));
+
+        // UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        // source.registerCorsConfiguration("/**", config);
+        // return source;
     }
 }

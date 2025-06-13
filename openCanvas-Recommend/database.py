@@ -172,6 +172,7 @@ class Database():
             )
 
     def recommend_by_item2(self, item_id: int, top_n: int, viewW: float, likeW: float, tagW: float, embW: float):
+        res = []
         res_scores = {}
         with self.driver.session() as session:
             result = session.run(
@@ -223,7 +224,10 @@ class Database():
 
                 res_scores[rid] = act_score + tag_score + emb_score
 
-        ranked = sorted(res_scores.items(), key=lambda x: x[1], reverse=True)
+            ranked = sorted(res_scores.items(), key=lambda x: x[1], reverse=True)
+            res = [iid for iid, _ in ranked[:top_n]]
+
+        
         return [iid for iid, _ in ranked[:top_n]]
 
 

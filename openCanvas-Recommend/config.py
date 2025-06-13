@@ -16,4 +16,5 @@ EMBEDDING_MODEL_NAME = os.getenv("EMBEDDING_MODEL_NAME")
 TAG_WEIGHT = float(os.getenv("TAG_WEIGHT"))
 LIKE_WEIGHT = float(os.getenv("LIKE_WEIGHT"))
 VIEW_WEIGHT = float(os.getenv("VIEW_WEIGHT"))
-EMB_WEIGHT = float(os.getenv("EMB_WEIGHT"))
+# EMB_WEIGHT = float(os.getenv("EMB_WEIGHT"))
+EMB_WEIGHT = 0.5
